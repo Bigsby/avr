@@ -234,5 +234,26 @@
             "PC(21:16) ← 0"
         ],
         "flags": ""
+    },
+    {
+        "mnemonic": "eijmp",
+        "description": "Extended Indirect Jump to (Z)",
+        "operation": [
+            "PC(15:0) ← Z",
+            "PC(21:16) ← EIND"
+        ],
+        "flags": ""
+    },
+    {
+        "mnemonic": "jmp",
+        "description": "Jump",
+        "operation": "PC ← k",
+        "flags": ""
+    },
+    {
+        "mnemonic": "rcall",
+        "description": "Relative Call Subroutine",
+        "operation": "PC ← PC + k + 1",
+        "flags": ""
     }
 ]
