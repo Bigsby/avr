@@ -1,0 +1,238 @@
+[
+    {
+        "mnemonic": "adc",
+        "opCode": "0001 11rd dddd rrrr",
+        "flags": "Z,C,N,V,S,H",
+        "status": {
+            "H": "Rd3 • Rr3 + Rr3 • R3 + R3 • Rd3",
+            "V": "Rd7 • Rr7 • R7 + Rd7 • Rr7 • R7",
+            "N": "R7",
+            "Z": "R7 • R6 • R5 • R4 • R3 • R2 • R1 • R0",
+            "C": "Rd7 • Rr7 + Rr7 • R7 + R7 • Rd7"
+        },
+        "operation": "Rd ← Rd + Rr + C",
+        "operands": {
+            "d": "0 ≤ d ≤ 31",
+            "r": "0 ≤ r ≤ 31"
+        },
+        "syntax": "ADC Rd,Rr",
+        "pCounter": "PC ← PC + 1",
+        "type": "AL",
+        "description": "Add with Carry"
+    },
+    {
+        "mnemonic": "add",
+        "description": "Add without Carry",
+        "operation": "Rd ← Rd + Rr",
+        "flags": "Z,C,N,V,S,H",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "adiw",
+        "description": "Add Immediate to Word",
+        "operation": "Rd ← Rd + 1:Rd + K",
+        "flags": "Z,C,N,V,S",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "sub",
+        "description": "Subtract without Carry",
+        "operation": "Rd ← Rd - Rr",
+        "flags": "Z,C,N,V,S,H",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "subi",
+        "description": "Subtract Immediate",
+        "operation": "Rd ← Rd - K",
+        "flags": "Z,C,N,V,S,H",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "sbc",
+        "description": "Subtract with Carry",
+        "operation": "Rd ← Rd - Rr - C",
+        "flags": "Z,C,N,V,S,H",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "sbci",
+        "description": "Subtract Immediate with Carry",
+        "operation": "Rd ← Rd - K - C",
+        "flags": "Z,C,N,V,S,H",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "sbiw",
+        "description": "Subtract Immediate from Word",
+        "operation": "Rd + 1:Rd ← Rd + 1:Rd - K",
+        "flags": "Z,C,N,V,S",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "and",
+        "description": "Logical AND",
+        "operation": "Rd ← Rd • Rr",
+        "flags": "Z,N,V,S",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "andi",
+        "description": "Logical AND with Immediate",
+        "operation": "Rd ← Rd • K",
+        "flags": "Z,N,V,S",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "or",
+        "description": "Logical OR",
+        "operation": "Rd ← Rd v Rr",
+        "flags": "Z,N,V,S",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "ori",
+        "description": "Logical OR with Immediate",
+        "operation": "Rd v K",
+        "flags": "Z,N,V,S",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "eor",
+        "description": "Exclusive OR",
+        "operation": "Rd ← Rd ⊕ Rr",
+        "flags": "Z,N,V,S",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "com",
+        "description": "One's Complement",
+        "operation": "Rd ← $FF - Rd",
+        "flags": "Z,C,N,V,S",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "neg",
+        "description": "Two’s Complement",
+        "operation": "Rd ← $00 - Rd",
+        "flags": "Z,C,N,V,S,H",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "sbr",
+        "description": "Set Bit(s) in Register",
+        "operation": "Rd ← Rd v K",
+        "flags": "Z,N,V,S",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "cbr",
+        "description": "Clear Bit(s) in Register",
+        "operation": "Rd ← Rd • ($FFh -K)",
+        "flags": "Z,N,V,S",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "inc",
+        "description": "Increment",
+        "operation": "Rd ← Rd + 1 ",
+        "flags": "Z,N,V,S",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "dec",
+        "description": "Decrement",
+        "operation": "Rd ← Rd - 1",
+        "flags": "Z,N,V,S",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "tst",
+        "description": "Test for Zero or Minus",
+        "operation": "Rd ← Rd • Rd",
+        "flags": "Z,N,V,S",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "clr",
+        "description": "Clear Register",
+        "operation": "Rd ← Rd ⊕ Rd",
+        "flags": "Z,N,V,S",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "ser",
+        "description": "Set Register",
+        "operation": "Rd ← $FF",
+        "flags": "",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "mul",
+        "description": "Multiply Unsigned",
+        "operation": "R1:R0 ← Rd x Rr (UU)",
+        "flags": "Z,C",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "muls",
+        "description": "Multiply Signed",
+        "operation": "R1:R0 ← Rd x Rr (SS)",
+        "flags": "Z,C",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "mulsu",
+        "description": "Multiply Signed with Unsigned",
+        "operation": "R1:R0 ← Rd x Rr (SU)",
+        "flags": "Z,C",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "fmul",
+        "description": "Fractional Multiply Unsigned",
+        "operation": "R1:R0 ← Rd x Rr<<1 (UU)",
+        "flags": "Z,C",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "fmuls",
+        "description": "Fractional Multiply Signed",
+        "operation": "R1:R0 ← Rd x Rr<<1 (SS)",
+        "flags": "Z,C",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "fmulsu",
+        "description": "Fractional Multiply Signed with Unsigned",
+        "operation": "R1:R0 ← Rd x Rr<<1 (SU)",
+        "flags": "Z,C",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "des",
+        "description": "Data Encryption",
+        "operation": [
+            "if (H = 0) then R15:R0 ← Encrypt(R15:R0, K)",
+            "else if (H = 1) then R15:R0 ← Decrypt(R15:R0, K)"
+        ],
+        "flags": "",
+        "type": "AL"
+    },
+    {
+        "mnemonic": "rjmp",
+        "description": "Relative Jump",
+        "operation": "PC ← PC + k + 1",
+        "flags": "",
+        "type": "B"
+    },
+    {
+        "mnemonic": "ijmp",
+        "description": "Indirect Jump to (Z)",
+        "operation": [
+            "PC(15:0) ← Z",
+            "PC(21:16) ← 0"
+        ],
+        "flags": ""
+    }
+]

@@ -1,0 +1,56 @@
+[
+    {
+        "id": "PC",
+        "name": "Program Counter",
+        "size": "16/22"
+    },
+    {
+        "id": "SREG",
+        "name": "Status Register",
+        "size": "8",
+        "flags": [
+            {
+                "id": "C",
+                "name": "Carry flag"
+            },
+            {
+                "id": "Z",
+                "name": "Zero flag"
+            },
+            {
+                "id": "N",
+                "name": "Negative flag"
+            },
+            {
+                "id": "V",
+                "name": "Overflow flag"
+            },
+            {
+                "id": "S",
+                "name": "Sign flag"
+            },
+            {
+                "id": "H",
+                "name": "Half-carry flag"
+            },
+            {
+                "id": "T",
+                "name": "Bit copy"
+            },
+            {
+                "id": "I",
+                "name": "Interrupt flag"
+            }
+        ]
+    },
+    {
+        "id": "SP",
+        "name": "Stack Pointer",
+        "size": "8/16"
+    },
+    {
+        "id": "R0-R31",
+        "name": "General Purpose",
+        "size": "8"
+    }
+]

@@ -1,0 +1,16 @@
+[{
+    "id": "AL",
+    "name": "Arithmetic and Logic"
+},{
+    "id": "B",
+    "name": "Branch"
+},{
+    "id": "DT",
+    "name": "Data Transfer"
+}, {
+    "id": "BT",
+    "name": "Bit and Bit-test"
+}, {
+    "id": "MCU",
+    "name": "MCU Control"
+}]
