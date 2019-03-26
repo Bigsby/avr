@@ -211,10 +211,29 @@
     },
     {
         "mnemonic": "cbr",
-        "description": "Clear Bit(s) in Register",
+        "name": "Clear Bit(s) in Register",
+        "description": "Clears the specified bits in register Rd. Performs the logical AND between the contents of register Rd and the complement of the constant mask K. The result will be placed in register Rd.",
         "operation": "Rd ← Rd • ($FFh -K)",
         "flags": "Z,N,V,S",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "CBR Rd,K",
+        "operands": {
+            "d": "16 ≤ d ≤ 31",
+            "K": "0 ≤ K ≤ 255"
+        },
+        "pCounter": "PC ← PC + 1",
+        "status": {
+            "S": "N ⊕ V",
+            "V": "0",
+            "N": "R7",
+            "Z":"!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0"
+        },
+        "examples": [
+            "cbr r16,$F0 ; Clear upper nibble of r16",
+            "cbr r18,1 ; Clear bit 0 in r18"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "inc",
@@ -359,9 +378,57 @@
     },
     {
         "mnemonic": "call",
-        "description": "Call Subroutine",
+        "name": "Call Subroutine",
+        "description": "Calls to a subroutine within the entire Program memory. The return address (to the instruction after the CALL) will be stored onto the Stack. (See also RCALL). The Stack Pointer uses a post-decrement scheme during CALL. This instruction is not available in all devices.",
         "operation": "PC ← k",
-        "type": "BR"
+        "operations": {
+            "16bitPC": {
+                "operands": {
+                    "k": "0 ≤ k ≤ 64K"
+                },
+                "stack": [
+                    "STACK ← PC+2",
+                    "SP ← SP-2, (2 bytes, 16 bits)"
+                ]
+            },
+            "22bitPC": {
+                "operands": {
+                    "k": "0 ≤ k ≤ 4M"
+                },
+                "stack": [
+                    "STACK ← PC+2",
+                    "SP ← SP-3, (3 bytes, 22 bits)"
+                ]
+            }
+        },
+        "type": "BR",
+        "syntax": "CALL k",
+        "opCode": [
+            "1001 010k kkkk 111k",
+            "kkkk kkkk kkkk kkkk"
+        ],
+        "examples": [
+            "mov r16,r0 ; Copy r0 to r16",
+            "call check ; Call subroutine",
+            "nop ; Continue (do nothing)",
+            "...",
+            "check: cpi r16,$42 ; Check if r16 has a special value",
+            "breq error ; Branch if equal",
+            "ret ; Return from subroutine",
+            "...",
+            "error: rjmp error ; Infinite loop"
+        ],
+        "words": 2,
+        "cycles": {
+            "0": {
+                "16bit": 4,
+                "22bit": 5
+            },
+            "x": {
+              "16Bit": 3,
+              "22bit": 4  
+            }
+        }
     },
     {
         "mnemonic": "ret",
@@ -582,7 +649,7 @@
         "opCode": "1111 01kk kkkk k000",
         "examples": [
             "subi r19,4 ; Subtract 4 from r19",
-            "brsh highsm ; Branch if r19 >= 4 (unsigned)".
+            "brsh highsm ; Branch if r19 >= 4 (unsigned)",
             "...",
             "highsm: nop ; Branch destination (do nothing)"
         ],
@@ -743,7 +810,7 @@
         },
         "opCode": "1111 01kk kkkk k101",
         "examples": [
-            "brhc hclear ; Branch if Half Carry Flag cleared";
+            "brhc hclear ; Branch if Half Carry Flag cleared",
             "...",
             "hclear: nop ; Branch destination (do nothing)"
         ],
@@ -755,9 +822,26 @@
     },
     {
         "mnemonic": "brts",
-        "description": "Branch if T Flag Set",
-        "operation": "if (T = 1) then PC ← PC + k + 1",
-        "type": "BR"
+        "name": "Branch if T Flag Set",
+        "description": "Conditional relative branch. Tests the T Flag and branches relatively to PC if T is set. This instruction branches relatively to PC in either direction (PC - 63 ≤ destination ≤ PC + 64). Parameter k is the offset from PC and is represented in two’s complement form. (Equivalent to instruction BRBS 6,k.)",
+        "operation": "if (T = 1) then PC ← PC + k + 1, else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "BRTS k",
+        "operands": {
+            "k": "-64 ≤ k ≤ +63"
+        },
+        "opCode": "1111 00kk kkkk k110",
+        "examples": [
+            "bst r3,5 ; Store bit 5 of r3 in T Flag",
+            "brts tset ; Branch if this bit was set",
+            "...",
+            "tset: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": [
+            "1 if condition is false",
+            "2 if condition is true"
+        ]
     },
     {
         "mnemonic": "brtc",
@@ -775,19 +859,58 @@
             "brtc tclear ; Branch if this bit was cleared",
             "...",
             "tclear: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": [
+            "1 if condition is false",
+            "2 if condition is true"
         ]
     },
     {
         "mnemonic": "brvs",
-        "description": "Branch if Overflow Flag is Set",
-        "operation": "if (V = 1) then PC ← PC + k + 1 ",
-        "type": "BR"
+        "name": "Branch if Overflow Flag is Set",
+        "description": "Conditional relative branch. Tests the Overflow Flag (V) and branches relatively to PC if V is set. This instruction branches relatively to PC in either direction (PC - 63 ≤ destination ≤ PC + 64). Parameter k is the offset from PC and is represented in two’s complement form. (Equivalent to instruction BRBS 3,k.)",
+        "operation": "if (V = 1) then PC ← PC + k + 1, else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "BRVS k",
+        "operands": {
+            "k": "-64 ≤ k ≤ +63"
+        },
+        "opCode": "1111 00kk kkkk k011",
+        "examples": [
+            "add r3,r4 ; Add r4 to r3",
+            "brvs overfl ; Branch if overflow",
+            "...",
+            "overfl: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": [
+            "1 if condition is false",
+            "2 if condition is true"
+        ]
     },
     {
         "mnemonic": "brvc",
-        "description": "Branch if Overflow Flag is Cleared",
-        "operation": "if (V = 0) then PC ← PC + k + 1",
-        "type": "BR"
+        "name": "Branch if Overflow Flag is Cleared",
+        "description": "Conditional relative branch. Tests the Overflow Flag (V) and branches relatively to PC if V is cleared. This instruction branches relatively to PC in either direction (PC - 63 ≤ destination ≤ PC + 64). Parameter k is the offset from PC and is represented in two’s complement form. (Equivalent to instruction BRBC 3,k.)",
+        "operation": "if (V = 0) then PC ← PC + k + 1, else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "BRVC k",
+        "operands": {
+            "k": "-64 ≤ k ≤ +63"
+        },
+        "opCode": "1111 01kk kkkk k011",
+        "examples": [
+            "add r3,r4 ; Add r4 to r3",
+            "brvc noover ; Branch if no overflow",
+            "...",
+            "noover: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": [
+            "1 if condition is false",
+            "2 if condition is true"
+        ]
     },
     {
         "mnemonic": "brie",
@@ -1235,16 +1358,47 @@
     },
     {
         "mnemonic": "cbi",
-        "description": "Clear Bit in I/O Register",
+        "name": "Clear Bit in I/O Register",
+        "description": "Clears a specified bit in an I/O register. This instruction operates on the lower 32 I/O registers – addresses 0-31.",
         "operation": "I/O(A, b) ← 0",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "CBI A,b",
+        "operands": {
+            "A": "0 ≤ A ≤ 31",
+            "b": "0 ≤ b ≤ 7"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 1000 AAAA Abbb",
+        "examples": "cbi $12,7 ; Clear bit 7 in Port D",
+        "words": 1,
+        "cycles": {
+            "0": 2,
+            "x": 1,
+            "tiny": 1
+        }
     },
     {
         "mnemonic": "bst",
-        "description": "Bit Store from Register to T",
+        "name": "Bit Store from Register to T",
+        "description": "Stores bit b from Rd to the T Flag in SREG (Status Register).",
         "operation": "T ← Rr(b)",
         "flags": "T",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "BST Rd,b",
+        "operands": {
+            "d": "0 ≤ d ≤ 31",
+            "b": "0 ≤ b ≤ 7"
+        },
+        "opCode": "1111 101d dddd 0bbb",
+        "status": {
+            "T": "0 if bit b in Rd is cleared. Set to 1 otherwise."
+        },
+        "examples": [
+            "bst r1,2 ; Store bit 2 of r1 in T Flag",
+            "bld r0,4 ; Load T into bit 4 of r0"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "bld",
@@ -1268,10 +1422,33 @@
     },
     {
         "mnemonic": "bset",
-        "description": "Flag Set",
+        "name": "Flag Set",
+        "description": "Sets a single Flag or bit in SREG.",
         "operation": "SREG(s) ← 1",
         "flags": "SREG(s)",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "BSET s",
+        "operands": {
+            "s": "0 ≤ s ≤ 7"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 0sss 1000",
+        "status": {
+            "I": "1 if s = 7; Unchanged otherwise.",
+            "T": "1 if s = 6; Unchanged otherwise.",
+            "H": "1 if s = 5; Unchanged otherwise.",
+            "S": "1 if s = 4; Unchanged otherwise.",
+            "V": "1 if s = 3; Unchanged otherwise.",
+            "N": "1 if s = 2; Unchanged otherwise.",
+            "Z": "1 if s = 1; Unchanged otherwise.",
+            "C": "1 if s = 0; Unchanged otherwise."
+        },
+        "examples": [
+            "bset 6 ; Set T Flag",
+            "bset 7 ; Enable interrupt"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "bclr",
@@ -1312,10 +1489,23 @@
     },
     {
         "mnemonic": "clc",
-        "description": "Clear Carry",
+        "name": "Clear Carry",
+        "description": "Clears the Carry Flag (C) in SREG (Status Register).",
         "operation": "C ← 0",
         "flags": "C",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "CLC",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 1000 1000",
+        "status": {
+            "C": "0"
+        },
+        "examples": [
+            "add r0,r0 ; Add r0 to itself",
+            "clc ; Clear Carry Flag"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "sen",
@@ -1410,10 +1600,20 @@
     },
     {
         "mnemonic": "clh",
-        "description": "Clear Half Carry Flag in SREG",
+        "name": "Clear Half Carry Flag in SREG",
+        "description": "Clears the Half Carry Flag (H) in SREG (Status Register).",
         "operation": "H ← 0",
         "flags": "H",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "CLH",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 1101 1000",
+        "status": {
+            "H": "0"
+        },
+        "examples": "clh ; Clear the Half Carry Flag",
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "break",
