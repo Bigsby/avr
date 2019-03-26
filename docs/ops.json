@@ -190,10 +190,31 @@
     },
     {
         "mnemonic": "com",
-        "description": "One's Complement",
+        "name": "One's Complement",
+        "description": "This instruction performs a One’s Complement of register Rd.",
         "operation": "Rd ← $FF - Rd",
         "flags": "Z,C,N,V,S",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "COM Rd",
+        "operands": {
+            "d": "0 ≤ d ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "status": {
+            "S": "N ⊕ V",
+            "V": 0,
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0",
+            "C": 1
+        },
+        "examples": [
+            "com r4 ; Take one’s complement of r4",
+            "breq zero ; Branch if zero",
+            "...",
+            "zero: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "neg",
@@ -226,7 +247,7 @@
             "S": "N ⊕ V",
             "V": "0",
             "N": "R7",
-            "Z":"!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0"
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0"
         },
         "examples": [
             "cbr r16,$F0 ; Clear upper nibble of r16",
@@ -258,10 +279,32 @@
     },
     {
         "mnemonic": "clr",
-        "description": "Clear Register",
+        "name": "Clear Register",
+        "description": "Clears a register. This instruction performs an Exclusive OR between a register and itself. This will clear all bits in the register.",
         "operation": "Rd ← Rd ⊕ Rd",
         "flags": "Z,N,V,S",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "CLR Rd",
+        "operands": {
+            "d": "0 ≤ d ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0010 01dd dddd dddd",
+        "status": {
+            "S": 0,
+            "V": 0,
+            "N": 0,
+            "Z": 1
+        },
+        "examples": [
+            " clr r18 ; clear r18",
+            "loop: inc r18 ; increase r18",
+            "...",
+            "cpi r18,$50 ; Compare r18 to $50",
+            "brne loop"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "ser",
@@ -425,8 +468,8 @@
                 "22bit": 5
             },
             "x": {
-              "16Bit": 3,
-              "22bit": 4  
+                "16Bit": 3,
+                "22bit": 4
             }
         }
     },
@@ -451,17 +494,67 @@
     },
     {
         "mnemonic": "cp",
-        "description": "Compare",
+        "name": "Compare",
+        "description": "This instruction performs a compare between two registers Rd and Rr. None of the registers are changed. All conditional branches can be used after this instruction.",
         "operation": "Rd - Rr",
         "flags": "Z,C,N,V,S,H",
-        "type": "BR"
+        "type": "BR",
+        "syntax": "CP Rd,Rr",
+        "operands": {
+            "d": "0 ≤ d ≤ 31",
+            "r": "0 ≤ r ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0001 01rd dddd rrrr",
+        "status": {
+            "H": "!Rd3 • Rr3 + Rr3 • R3 + R3 • !Rd3",
+            "S": "N ⊕ V",
+            "V": "Rd7 • Rr7 • !R7 + !Rd7 • !Rr7 • R7",
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0",
+            "C": "!Rd7 • Rr7 + Rr7 • R7 + R7 • !Rd7"
+        },
+        "examples": [
+            "cp r4,r19 ; Compare r4 with r19",
+            "brne noteq ; Branch if r4 <> r19",
+            "...",
+            "noteq: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "cpc",
-        "description": "Compare with Carry",
+        "name": "Compare with Carry",
+        "description": "This instruction performs a compare between two registers Rd and Rr and also takes into account the previous carry. None of the registers are changed. All conditional branches can be used after this instruction.",
         "operation": "Rd - Rr - C",
         "flags": "Z,C,N,V,S,H",
-        "type": "BR"
+        "type": "BR",
+        "syntax": "CPC Rd,Rr",
+        "operands": {
+            "d": "0 ≤ d ≤ 31",
+            "r": "0 ≤ r ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0000 01rd dddd rrrr",
+        "status": {
+            "H": "!Rd3 • Rr3 + Rr3 • R3 + R3 • !Rd3",
+            "S": "N ⊕ V",
+            "V": "Rd7 • !Rr7 • !R7 + !Rd7 • Rr7 • R7",
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0",
+            "C": "!Rd7 • Rr7 + Rr7 • R7 + R7 • !Rd7"
+        },
+        "examples": [
+            "; Compare r3:r2 with r1:r0",
+            "cp r2,r0 ; Compare low byte",
+            "cpc r3,r1 ; Compare high byte",
+            "brne noteq ; Branch if not equal",
+            "...",
+            "noteq: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "cpi",
@@ -1516,10 +1609,23 @@
     },
     {
         "mnemonic": "cln",
-        "description": "Clear Negative Flag",
+        "name": "Clear Negative Flag",
+        "description": "Clears the Negative Flag (N) in SREG (Status Register).",
         "operation": "N ← 0",
         "flags": "N",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "CLN",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 1010 1000",
+        "status": {
+            "N": "0"
+        },
+        "examples": [
+            "add r2,r3 ; Add r3 to r2",
+            "cln ; Clear Negative Flag"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "sez",
@@ -1530,10 +1636,23 @@
     },
     {
         "mnemonic": "clz",
-        "description": "Clear Zero Flag",
+        "name": "Clear Zero Flag",
+        "description": "Clears the Zero Flag (Z) in SREG (Status Register).",
         "operation": "Z ← 0",
         "flags": "Z",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "CLZ",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 1001 1000",
+        "status": {
+            "Z": 0
+        },
+        "examples": [
+            "add r2,r3 ; Add r3 to r2",
+            "clz ; Clear zero"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "sei",
@@ -1544,10 +1663,26 @@
     },
     {
         "mnemonic": "cli",
-        "description": "Global Interrupt Disable",
+        "name": "Global Interrupt Disable",
+        "description": "Clears the Global Interrupt Flag (I) in SREG (Status Register). The interrupts will be immediately disabled. No interrupt will be executed after the CLI instruction, even if it occurs simultaneously with the CLI instruction.",
         "operation": "I ← 0",
         "flags": "I",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "CLI",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 1111 1000",
+        "status": {
+            "I": "0"
+        },
+        "examples": [
+            "in temp, SREG ; Store SREG value (temp must be defined by user)",
+            "cli ; Disable interrupts during timed sequence",
+            "sbi EECR, EEMWE ; Start EEPROM write",
+            "sbi EECR, EEWE",
+            "out SREG, temp ; Restore SREG value (I-Flag)"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "ses",
@@ -1558,10 +1693,23 @@
     },
     {
         "mnemonic": "cls",
-        "description": "Clear Signed Test Flag",
+        "name": "Clear Signed Test Flag",
+        "description": "Clears the Signed Flag (S) in SREG (Status Register).",
         "operation": "S ← 0",
         "flags": "S",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "CLS",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 1100 1000",
+        "status": {
+            "S": 0
+        },
+        "examples": [
+            "add r2,r3 ; Add r3 to r2",
+            "cls ; Clear Signed Flag"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "sev",
@@ -1572,10 +1720,23 @@
     },
     {
         "mnemonic": "clv",
-        "description": "Clear Two's Compliment Overflow",
+        "name": "Clear Two's Compliment Overflow",
+        "description": "Clears the Overflow Flag (V) in SREG (Status Register)",
         "operation": "V ← 0",
         "flags": "V",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "CLV",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 1011 1000",
+        "status": {
+            "V": 0
+        },
+        "examples": [
+            "add r2,r3 ; Add r3 to r2",
+            "clv ; Clear Overflow Flag"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "set",
@@ -1586,10 +1747,20 @@
     },
     {
         "mnemonic": "clt",
-        "description": "Clear T in SREG",
+        "name": "Clear T in SREG",
+        "description": "Clears the T Flag in SREG (Status Register).",
         "operation": "T ← 0",
         "flags": "T",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "CTL",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 1110 1000",
+        "status": {
+            "T": 0
+        },
+        "examples": "clt ; Clear T Flag",
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "seh",
