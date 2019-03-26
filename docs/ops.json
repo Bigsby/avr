@@ -987,6 +987,23 @@
         "type": "BT"
     },
     {
-
+        "mnemonic": "break",
+        "description": "Break",
+        "type": "MC"
+    },
+    {
+        "mnemonic": "nop",
+        "description": "No Operation",
+        "type": "MC"
+    },
+    {
+        "mnemonic": "sleep",
+        "description": "Sleep",
+        "type": "MC"
+    },
+    {
+        "mnemonic": "wdr",
+        "description": "Watchdog Reset",
+        "type": "MC"
     }
 ]
