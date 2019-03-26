@@ -462,5 +462,320 @@
         "description": "Branch if Interrupt Disabled",
         "operation": "if (I = 0) then PC ← PC + k + 1 ",
         "type": "B"
+    },
+    {
+        "mnemonic": "mov",
+        "description": "Copy Register",
+        "operation": "Rd ← Rr",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "movw",
+        "description": "Copy Register Pair",
+        "operation": "Rd+1:Rd ← Rr+1:Rr",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "ldi",
+        "description": "Load Immediate",
+        "operation": "Rd ← K",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "lds",
+        "description": "Load Direct from data space",
+        "operation": "Rd ← (k)",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "ld",
+        "description": "Load Indirect",
+        "operation": "Rd ← (X)",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "ld",
+        "description": "Load Indirect and PostIncrement",
+        "operation": [
+            "Rd ← (X)",
+            "X ← X + 1"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "ld",
+        "description": "Load Indirect and PreDecrement",
+        "operation": [
+            "X ← X - 1",
+            "Rd ← (X)"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "ld",
+        "description": "Load Indirect",
+        "operation": "Rd ← (Y)",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "ld",
+        "description": "Load Indirect and PostIncrement",
+        "operation": [
+            "Rd ← (Y)",
+            "Y ← Y + 1"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "ld",
+        "description": "Load Indirect and PreDecrement",
+        "operation": [
+            "Y ← Y - 1",
+            "Rd ← (Y)"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "ldd",
+        "description": "Load Indirect with Displacement",
+        "operation": "Rd ← (Y + q)",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "ld",
+        "description": "Load Indirect",
+        "operation": "Rd ← (Z)",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "ld",
+        "description": "Load Indirect and PostIncrement",
+        "operation": [
+            "Rd ← (Z)",
+            "Z ← Z + 1"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "ld",
+        "description": "Load Indirect and PreDecrement",
+        "operation": [
+            "Z ← Z - 1",
+            "Rd ← (Z)"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "ldd",
+        "description": "Load Indirect with Displacement",
+        "operation": "Rd ← (Z + q)",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "sts",
+        "description": "Store Direct to Data Space",
+        "operation": "(k) ← Rd",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "st",
+        "description": "Store Indirect",
+        "operation": "(X) ← Rr",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "st",
+        "description": "Store Indirect and PostIncrement"   ,
+        "operation": [
+            "(X) ← Rr",
+            "X ← X + 1"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "st",
+        "description": "Store Indirect and PreDecrement",
+        "operation": [
+            "X ← X - 1",
+            "(X) ← Rr"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "st",
+        "description": "Store Indirect",
+        "operation": "(Y) ← Rr",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "st",
+        "description": "Store Indirect and PostIncrement"   ,
+        "operation": [
+            "(Y) ← Rr",
+            "Y ← Y + 1"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "st",
+        "description": "Store Indirect and PreDecrement",
+        "operation": [
+            "Y ← Y - 1",
+            "(Y) ← Rr"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "std",
+        "description": "r Store Indirect with Displacement",
+        "operation": "(Y + q) ← Rr",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "st",
+        "description": "Store Indirect",
+        "operation": "(Z) ← Rr",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "st",
+        "description": "Store Indirect and PostIncrement"   ,
+        "operation": [
+            "(Z) ← Rr",
+            "Z ← Z + 1"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "st",
+        "description": "Store Indirect and PreDecrement",
+        "operation": [
+            "Z ← Z - 1",
+            "(Z) ← Rr"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "std",
+        "description": "r Store Indirect with Displacement",
+        "operation": "(Z + q) ← Rr",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "lpm",
+        "description": "Load Program Memory",
+        "operation": "R0 ← (Z)",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "lpm",
+        "description": "Load Program Memory",
+        "operation": "Rd ← (Z)",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "lpm",
+        "description": "Load Program Memory and PostIncrement",
+        "operation": [
+            "Rd ← (Z)",
+            "Z ← Z + 1"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "elpm",
+        "description": "Extended Load Program Memory",
+        "operation": "R0 ← (RAMPZ:Z)",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "elpm",
+        "description": "Extended Load Program Memory",
+        "operation": "Rd ← (RAMPZ:Z)",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "elpm",
+        "description": "Extended Load Program Memory and PostIncrement",
+        "operation": [
+            "Rd ← (RAMPZ:Z)",
+            "(RAMPZ:Z) ← (RAMPZ:Z) + 1"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "spm",
+        "description": "Store Program Memory",
+        "operation": "(RAMPZ:Z) ← R1:R0",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "spm",
+        "description": "Store Program Memory and PostIncrement by 2",
+        "operation": [
+            "(RAMPZ:Z) ← R1:R0",
+            "Z ← Z + 2"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "in",
+        "description": "In From I/O Location",
+        "operation": "Rd ← I/O(A)",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "out",
+        "description": "Out To I/O Location",
+        "operation": "I/O(A) ← Rr",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "push",
+        "description": "Push Register on Stack",
+        "operation": "STACK ← Rr",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "pop",
+        "description": "Pop Register from Stack",
+        "operation": "Rd ← STACK",
+        "type": "DT"
+    },
+    {
+        "mnemonic": "xch",
+        "description": "Exchange",
+        "operation": [
+            "(Z) ← Rd",
+            "Rd ← (Z)"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "las",
+        "description": "Load and Set",
+        "operation": [
+            "(Z) ← Rd v (Z)",
+            "Rd ← (Z)"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "lac",
+        "description": "Load and Clear",
+        "operation": [
+            "(Z) ← ($FF – Rd) • (Z)",
+            "Rd ← (Z)"
+        ],
+        "type": "DT"
+    },
+    {
+        "mnemonic": "lat",
+        "description": "Load and Toggle",
+        "operation": [
+            "(Z) ← Rd ⊕ (Z)",
+            "Rd ← (Z)"
+        ],
+        "type": "DT"
     }
 ]
