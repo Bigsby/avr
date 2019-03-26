@@ -2,7 +2,7 @@
     "id": "AL",
     "name": "Arithmetic and Logic"
 },{
-    "id": "B",
+    "id": "BR",
     "name": "Branch"
 },{
     "id": "DT",
@@ -11,6 +11,6 @@
     "id": "BT",
     "name": "Bit and Bit-test"
 }, {
-    "id": "MCU",
+    "id": "MC",
     "name": "MCU Control"
 }]

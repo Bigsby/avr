@@ -223,7 +223,7 @@
         "mnemonic": "rjmp",
         "description": "Relative Jump",
         "operation": "PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "ijmp",
@@ -232,7 +232,7 @@
             "PC(15:0) ← Z",
             "PC(21:16) ← 0"
         ],
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "eijmp",
@@ -241,19 +241,19 @@
             "PC(15:0) ← Z",
             "PC(21:16) ← EIND"
         ],
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "jmp",
         "description": "Jump",
         "operation": "PC ← k",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "rcall",
         "description": "Relative Call Subroutine",
         "operation": "PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "icall",
@@ -262,7 +262,7 @@
             "PC(15:0) ← Z",
             "PC(21:16) ← 0"
         ],
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "eicall",
@@ -271,197 +271,197 @@
             "PC(15:0) ← Z",
             "PC(21:16) ← EIND"
         ],
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "call",
         "description": "Call Subroutine",
         "operation": "PC ← k",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "ret",
         "description": "Subroutine Return",
         "operation": "PC ← STACK",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "reti",
         "description": "Interrupt Return",
         "operation": "PC ← STACK",
         "flags": "I",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "cpse",
         "description": "Compare, skip if Equal",
         "operation": "if (Rd = Rr) PC ← PC + 2 or 3",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "cp",
         "description": "Compare",
         "operation": "Rd - Rr",
         "flags": "Z,C,N,V,S,H",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "cpc",
         "description": "Compare with Carry",
         "operation": "Rd - Rr - C",
         "flags": "Z,C,N,V,S,H",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "cpi",
         "description": "Compare with Immediate",
         "operation": "Rd - K",
         "flags": "Z,C,N,V,S,H",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "sbrc",
         "description": "Skip if Bit in Register Cleared",
         "operation": "if (Rr(b) = 0) PC ← PC + 2 or 3",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "sbrs",
         "description": "Skip if Bit in Register Set",
         "operation": "if (Rr(b) = 1) PC ← PC + 2 or 3",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "sbic",
         "description": "Skip if Bit in I/O Register Cleared",
         "operation": "if (I/O(A,b) = 0) PC ← PC + 2 or 3",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "sbis",
         "description": "Skip if Bit in I/O Register Set",
         "operation": "If (I/O(A,b) =1) PC ← PC + 2 or 3 ",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brbs",
         "description": "Branch if Status Flag Set",
         "operation": "if (SREG(s) = 1) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brbc",
         "description": "Branch if Status Flag Cleared",
         "operation": "if (SREG(s) = 0) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "breq",
         "description": "Branch if Equal",
         "operation": "if (Z = 1) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brne",
         "description": "Branch if Not Equal",
         "operation": "if (Z = 0) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brcs",
         "description": "Branch if Carry Set",
         "operation": "if (C = 1) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brcc",
         "description": "Branch if Carry Cleared",
         "operation": "if (C = 0) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brsh",
         "description": "Branch if Same or Higher",
         "operation": "if (C = 0) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brlo",
         "description": "Branch if Lower",
         "operation": "if (C = 1) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brmi",
         "description": "Branch if Minus",
         "operation": "if (N = 1) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brpl",
         "description": "Branch if Plus",
         "operation": "if (N = 0) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brge",
         "description": "Branch if Greater or Equal, Signed",
         "operation": "if (N ⊕ V= 0) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brlt",
         "description": "Branch if Less Than, Signed",
         "operation": "if (N ⊕ V= 1) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brhs",
         "description": "Branch if Half Carry Flag Set",
         "operation": "if (H = 1) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brhc",
         "description": "Branch if Half Carry Flag Cleared",
         "operation": "if (H = 0) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brts",
         "description": "Branch if T Flag Set",
         "operation": "if (T = 1) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brtc",
         "description": "Branch if T Flag Cleared",
         "operation": "if (T = 0) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brvs",
         "description": "Branch if Overflow Flag is Set",
         "operation": "if (V = 1) then PC ← PC + k + 1 ",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brvc",
         "description": "Branch if Overflow Flag is Cleared",
         "operation": "if (V = 0) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brie",
         "description": "Branch if Interrupt Enabled",
         "operation": "if (I = 1) then PC ← PC + k + 1",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "brid",
         "description": "Branch if Interrupt Disabled",
         "operation": "if (I = 0) then PC ← PC + k + 1 ",
-        "type": "B"
+        "type": "BR"
     },
     {
         "mnemonic": "mov",
@@ -777,5 +777,216 @@
             "Rd ← (Z)"
         ],
         "type": "DT"
+    },
+    {
+        "mnemonic": "lsl",
+        "description": "Logical Shift Left",
+        "operation": [
+            "Rd(n+1) ← Rd(n)",
+            "Rd(0) ← 0",
+            "C ← Rd(7)"
+        ],
+        "flags": "Z,C,N,V,H",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "lsr",
+        "description": "Logical Shift Right",
+        "operation": [
+            "Rd(n) ← Rd(n+1)",
+            "Rd(7) ← 0",
+            "C ← Rd(0)"
+        ],
+        "flags": "Z,C,N,V",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "rol",
+        "description": "Rotate Left Through Carry",
+        "operation": [
+            "Rd(0) ← C",
+            "Rd(n+1) ← Rd(n)",
+            "C ← Rd(7)"
+        ],
+        "flags": "Z,C,N,V,H",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "ror",
+        "description": "Rotate Right Through Carry",
+        "operation": [
+            "Rd(7) ← C",
+            "Rd(n) ← Rd(n+1)",
+            "C ← Rd(0)"
+        ],
+        "flags": "Z,C,N,V",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "asr",
+        "description": "Arithmetic Shift Right",
+        "operation": "Rd(n) ← Rd(n+1), n=0..6",
+        "flags": "Z,C,N,V",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "swap",
+        "description": "Swap Nibbles",
+        "operation": "Rd(3..0) ↔ Rd(7..4)",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "sbi",
+        "description": "Set Bit in I/O Register",
+        "operation": "I/O(A, b) ← 1",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "cbi",
+        "description": "Clear Bit in I/O Register",
+        "operation": "I/O(A, b) ← 0",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "bst",
+        "description": "Bit Store from Register to T",
+        "operation": "T ← Rr(b)",
+        "flags": "T",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "bld",
+        "description": "Bit load from T to Register",
+        "operation": "Rd(b) ← T",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "bset",
+        "description": "Flag Set",
+        "operation": "SREG(s) ← 1",
+        "flags": "SREG(s)",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "bclr",
+        "description": "Flag Clear",
+        "operation": "SREG(s) ← 0",
+        "flags": "SREG(s)",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "sec",
+        "description": "Set Carry",
+        "operation": "C ← 1",
+        "flags": "C",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "clc",
+        "description": "Clear Carry",
+        "operation": "C ← 0",
+        "flags": "C",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "sen",
+        "description": "Set Negative Flag",
+        "operation": "N ← 1",
+        "flags": "N",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "cln",
+        "description": "Clear Negative Flag",
+        "operation": "N ← 0",
+        "flags": "N",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "sez",
+        "description": "Set Zero Flag",
+        "operation": "Z ← 1",
+        "flags": "Z",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "clz",
+        "description": "Clear Zero Flag",
+        "operation": "Z ← 0",
+        "flags": "Z",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "sei",
+        "description": "Global Interrupt Enable",
+        "operation": "I ← 1",
+        "flags": "I",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "cli",
+        "description": "Global Interrupt Disable",
+        "operation": "I ← 0",
+        "flags": "I",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "ses",
+        "description": "Set Signed Test Flag",
+        "operation": "S ← 1",
+        "flags": "S",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "cls",
+        "description": "Clear Signed Test Flag",
+        "operation": "S ← 0",
+        "flags": "S",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "sev",
+        "description": "Set Two's Compliment Overflow",
+        "operation": "V ← 1",
+        "flags": "V",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "clv",
+        "description": "Clear Two's Compliment Overflow",
+        "operation": "V ← 0",
+        "flags": "V",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "set",
+        "description": "Set T in SREG",
+        "operation": "T ← 1",
+        "flags": "T",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "clt",
+        "description": "Clear T in SREG",
+        "operation": "T ← 0",
+        "flags": "T",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "seh",
+        "description": "Set Half Carry Flag in SREG",
+        "operation": "H ← 1",
+        "flags": "H",
+        "type": "BT"
+    },
+    {
+        "mnemonic": "clh",
+        "description": "Clear Half Carry Flag in SREG",
+        "operation": "H ← 0",
+        "flags": "H",
+        "type": "BT"
+    },
+    {
+
     }
 ]
