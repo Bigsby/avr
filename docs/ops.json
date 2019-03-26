@@ -223,7 +223,6 @@
         "mnemonic": "rjmp",
         "description": "Relative Jump",
         "operation": "PC ← PC + k + 1",
-        "flags": "",
         "type": "B"
     },
     {
@@ -233,7 +232,7 @@
             "PC(15:0) ← Z",
             "PC(21:16) ← 0"
         ],
-        "flags": ""
+        "type": "B"
     },
     {
         "mnemonic": "eijmp",
@@ -242,18 +241,226 @@
             "PC(15:0) ← Z",
             "PC(21:16) ← EIND"
         ],
-        "flags": ""
+        "type": "B"
     },
     {
         "mnemonic": "jmp",
         "description": "Jump",
         "operation": "PC ← k",
-        "flags": ""
+        "type": "B"
     },
     {
         "mnemonic": "rcall",
         "description": "Relative Call Subroutine",
         "operation": "PC ← PC + k + 1",
-        "flags": ""
+        "type": "B"
+    },
+    {
+        "mnemonic": "icall",
+        "description": "Indirect Call to (Z)",
+        "operation": [
+            "PC(15:0) ← Z",
+            "PC(21:16) ← 0"
+        ],
+        "type": "B"
+    },
+    {
+        "mnemonic": "eicall",
+        "description": "Extended Indirect Call to (Z)",
+        "operation": [
+            "PC(15:0) ← Z",
+            "PC(21:16) ← EIND"
+        ],
+        "type": "B"
+    },
+    {
+        "mnemonic": "call",
+        "description": "Call Subroutine",
+        "operation": "PC ← k",
+        "type": "B"
+    },
+    {
+        "mnemonic": "ret",
+        "description": "Subroutine Return",
+        "operation": "PC ← STACK",
+        "type": "B"
+    },
+    {
+        "mnemonic": "reti",
+        "description": "Interrupt Return",
+        "operation": "PC ← STACK",
+        "flags": "I",
+        "type": "B"
+    },
+    {
+        "mnemonic": "cpse",
+        "description": "Compare, skip if Equal",
+        "operation": "if (Rd = Rr) PC ← PC + 2 or 3",
+        "type": "B"
+    },
+    {
+        "mnemonic": "cp",
+        "description": "Compare",
+        "operation": "Rd - Rr",
+        "flags": "Z,C,N,V,S,H",
+        "type": "B"
+    },
+    {
+        "mnemonic": "cpc",
+        "description": "Compare with Carry",
+        "operation": "Rd - Rr - C",
+        "flags": "Z,C,N,V,S,H",
+        "type": "B"
+    },
+    {
+        "mnemonic": "cpi",
+        "description": "Compare with Immediate",
+        "operation": "Rd - K",
+        "flags": "Z,C,N,V,S,H",
+        "type": "B"
+    },
+    {
+        "mnemonic": "sbrc",
+        "description": "Skip if Bit in Register Cleared",
+        "operation": "if (Rr(b) = 0) PC ← PC + 2 or 3",
+        "type": "B"
+    },
+    {
+        "mnemonic": "sbrs",
+        "description": "Skip if Bit in Register Set",
+        "operation": "if (Rr(b) = 1) PC ← PC + 2 or 3",
+        "type": "B"
+    },
+    {
+        "mnemonic": "sbic",
+        "description": "Skip if Bit in I/O Register Cleared",
+        "operation": "if (I/O(A,b) = 0) PC ← PC + 2 or 3",
+        "type": "B"
+    },
+    {
+        "mnemonic": "sbis",
+        "description": "Skip if Bit in I/O Register Set",
+        "operation": "If (I/O(A,b) =1) PC ← PC + 2 or 3 ",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brbs",
+        "description": "Branch if Status Flag Set",
+        "operation": "if (SREG(s) = 1) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brbc",
+        "description": "Branch if Status Flag Cleared",
+        "operation": "if (SREG(s) = 0) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "breq",
+        "description": "Branch if Equal",
+        "operation": "if (Z = 1) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brne",
+        "description": "Branch if Not Equal",
+        "operation": "if (Z = 0) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brcs",
+        "description": "Branch if Carry Set",
+        "operation": "if (C = 1) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brcc",
+        "description": "Branch if Carry Cleared",
+        "operation": "if (C = 0) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brsh",
+        "description": "Branch if Same or Higher",
+        "operation": "if (C = 0) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brlo",
+        "description": "Branch if Lower",
+        "operation": "if (C = 1) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brmi",
+        "description": "Branch if Minus",
+        "operation": "if (N = 1) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brpl",
+        "description": "Branch if Plus",
+        "operation": "if (N = 0) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brge",
+        "description": "Branch if Greater or Equal, Signed",
+        "operation": "if (N ⊕ V= 0) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brlt",
+        "description": "Branch if Less Than, Signed",
+        "operation": "if (N ⊕ V= 1) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brhs",
+        "description": "Branch if Half Carry Flag Set",
+        "operation": "if (H = 1) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brhc",
+        "description": "Branch if Half Carry Flag Cleared",
+        "operation": "if (H = 0) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brts",
+        "description": "Branch if T Flag Set",
+        "operation": "if (T = 1) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brtc",
+        "description": "Branch if T Flag Cleared",
+        "operation": "if (T = 0) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brvs",
+        "description": "Branch if Overflow Flag is Set",
+        "operation": "if (V = 1) then PC ← PC + k + 1 ",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brvc",
+        "description": "Branch if Overflow Flag is Cleared",
+        "operation": "if (V = 0) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brie",
+        "description": "Branch if Interrupt Enabled",
+        "operation": "if (I = 1) then PC ← PC + k + 1",
+        "type": "B"
+    },
+    {
+        "mnemonic": "brid",
+        "description": "Branch if Interrupt Disabled",
+        "operation": "if (I = 0) then PC ← PC + k + 1 ",
+        "type": "B"
     }
 ]
