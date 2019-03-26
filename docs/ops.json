@@ -183,10 +183,30 @@
     },
     {
         "mnemonic": "eor",
-        "description": "Exclusive OR",
+        "name": "Exclusive OR",
+        "description": "Performs the logical EOR between the contents of register Rd and register Rr and places the result in the destination register Rd.",
         "operation": "Rd ← Rd ⊕ Rr",
         "flags": "Z,N,V,S",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "EOR Rd,Rr",
+        "operands": {
+            "d": "0 ≤ d ≤ 31",
+            "r": "0 ≤ r ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0010 01rd dddd rrrr",
+        "status": {
+            "S": "N ⊕ V",
+            "V": 0,
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0"
+        },
+        "examples": [
+            "eor r4,r4 ; Clear r4",
+            "eor r0,r22 ; Bitwise exclusive or between r0 and r22"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "com",
@@ -258,17 +278,62 @@
     },
     {
         "mnemonic": "inc",
-        "description": "Increment",
+        "name": "Increment",
+        "description": "Adds one -1- to the contents of register Rd and places the result in the destination register Rd. The C Flag in SREG is not affected by the operation, thus allowing the INC instruction to be used on a loop counter in multiple-precision computations. When operating on unsigned numbers, only BREQ and BRNE branches can be expected to perform consistently. When operating on two’s complement values, all signed branches are available.",
         "operation": "Rd ← Rd + 1 ",
         "flags": "Z,N,V,S",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "INC Rd",
+        "operands": {
+            "d": "0 ≤ d ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 010d dddd 0011",
+        "status": {
+            "S": "N ⊕ V",
+            "V": "R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0",
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0"
+        },
+        "examples": [
+            "clr r22 ; clear r22",
+            "loop: inc r22 ; increment r22",
+            "...",
+            "cpi r22,$4F ; Compare r22 to $4f",
+            "brne loop ; Branch if not equal",
+            "nop ; Continue (do nothing)"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "dec",
-        "description": "Decrement",
+        "name": "Decrement",
+        "description": "Subtracts one -1- from the contents of register Rd and places the result in the destination register Rd. The C Flag in SREG is not affected by the operation, thus allowing the DEC instruction to be used on a loop counter in multiple-precision computations. When operating on unsigned values, only BREQ and BRNE branches can be expected to perform consistently. When operating on two’s complement values, all signed branches are available.",
         "operation": "Rd ← Rd - 1",
         "flags": "Z,N,V,S",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "DEC Rd",
+        "pCounter": "PC ← PC + 1",
+        "operands": {
+            "d": "0 ≤ d ≤ 31"
+        },
+        "opCode": "1001 010d dddd 1010",
+        "status": {
+            "S": "N ⊕ V",
+            "V": "!R7 • R6 • R5 • R4 • R3 • R2 • R1 • R0",
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0"
+        },
+        "examples": [
+            "ldi r17,$10 ; Load constant in r17",
+            "loop: add r1,r2 ; Add r2 to r1",
+            "dec r17 ; Decrement r17",
+            "brne loop ; Branch if r17<>0",
+            "nop ; Continue (do nothing)"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "tst",
@@ -336,34 +401,100 @@
     },
     {
         "mnemonic": "fmul",
-        "description": "Fractional Multiply Unsigned",
+        "name": "Fractional Multiply Unsigned",
+        "description": "This instruction performs 8-bit × 8-bit → 16-bit unsigned multiplication and shifts the result one bit left",
         "operation": "R1:R0 ← Rd x Rr<<1 (UU)",
         "flags": "Z,C",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "FMUL Rd,Rr",
+        "opCode": "0000 0011 0ddd 1rrr",
+        "status": {
+            "C": "R16",
+            "Z": "!R15 • !R14 • !R13 • !R12 • !R11 • !R10 • !R9 • !R8R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0"
+        },
+        "incomplete": true,
+        "operands": {
+            "d": "16 ≤ d ≤ 23",
+            "r": "16 ≤ d ≤ 23"
+        },
+        "pCounter": "PC ← PC + 1",
+        "words": 1,
+        "cycles": 2
     },
     {
         "mnemonic": "fmuls",
-        "description": "Fractional Multiply Signed",
+        "name": "Fractional Multiply Signed",
+        "description": "This instruction performs 8-bit × 8-bit → 16-bit signed multiplication and shifts the result one bit left.",
         "operation": "R1:R0 ← Rd x Rr<<1 (SS)",
         "flags": "Z,C",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "FMULS Rd,Rr",
+        "incomplete": true,
+        "operands": {
+            "d": "16 ≤ d ≤ 23",
+            "r": "16 ≤ d ≤ 23"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0000 0011 1ddd 0rrr",
+        "status": {
+            "C": "R16",
+            "Z": "!R15 • !R14 • !R13 • !R12 • !R11 • !R10 • !R9 • !R8R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0"
+        },
+        "examples": [
+            "fmuls r23,r22 ; Multiply signed r23 and r22 in (1.7) format, result in (1.15) format",
+            "mov w r23:r22,r1:r0 ; Copy result back in r23:r22"
+        ],
+        "words": 1,
+        "cycles": 2
     },
     {
         "mnemonic": "fmulsu",
-        "description": "Fractional Multiply Signed with Unsigned",
+        "name": "Fractional Multiply Signed with Unsigned",
+        "description": "This instruction performs 8-bit × 8-bit → 16-bit signed multiplication and shifts the result one bit left.",
         "operation": "R1:R0 ← Rd x Rr<<1 (SU)",
+        "incomplete": true,
         "flags": "Z,C",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "FMULSU Rd,Rr",
+        "operands": {
+            "d": "16 ≤ d ≤ 23",
+            "r": "16 ≤ d ≤ 23"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0000 0011 1ddd 1rrr",
+        "status": {
+            "C": "R16",
+            "Z": "!R15 • !R14 • !R13 • !R12 • !R11 • !R10 • !R9 • !R8R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0"
+        },
+        "words": 1,
+        "cycles": 2
     },
     {
         "mnemonic": "des",
-        "description": "Data Encryption",
+        "name": "Data Encryption",
+        "description": "The module is an instruction set extension to the AVR CPU, performing DES iterations. The 64-bit data block (plaintext or ciphertext) is placed in the CPU register file, registers R0-R7, where LSB of data is placed in LSB of R0 and MSB of data is placed in MSB of R7. The full 64-bit key (including parity bits) is placed in registers R8-R15, organized in the register file with LSB of key in LSB of R8 and MSB of key in MSB of R15. Executing one DES instruction performs one round in the DES algorithm. Sixteen rounds must be executed in increasing order to form the correct DES ciphertext or plaintext. Intermediate results are stored in the register file (R0-R15) after each DES instruction. The instruction's operand (K) determines which round is executed, and the half carry flag (H) determines whether encryption or decryption is performed. The DES algorithm is described in “Specifications for the Data Encryption Standard” (Federal Information Processing Standards Publication 46). Intermediate results in this implementation differ from the standard because the initial permutation and the inverse initial permutation are performed in each iteration. This does not affect the result in the final ciphertext or plaintext, but reduces the execution time.",
         "operation": [
             "if (H = 0) then R15:R0 ← Encrypt(R15:R0, K)",
             "else if (H = 1) then R15:R0 ← Decrypt(R15:R0, K)"
         ],
         "flags": "",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "DES K",
+        "operands": {
+            "K": "0x00 ≤ K ≤ 0x0F"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 KKKK 1011",
+        "examples": [
+            "DES 0x00",
+            "DES 0x01",
+            "...",
+            "DES 0x0E",
+            "DES 0x0F"
+        ],
+        "words": 1,
+        "cycles": 1,
+        "notes": "If the DES instruction is succeeding a non-DES instruction, an extra cycle is inserted."
     },
     {
         "mnemonic": "rjmp",
@@ -373,27 +504,65 @@
     },
     {
         "mnemonic": "ijmp",
-        "description": "Indirect Jump to (Z)",
+        "name": "Indirect Jump to (Z)",
+        "description": "Indirect jump to the address pointed to by the Z (16 bits) Pointer Register in the Register File. The Zpointer Register is 16 bits wide and allows jump within the lowest 64K words (128KB) section of Program memory. This instruction is not available in all devices.",
         "operation": [
             "PC(15:0) ← Z",
             "PC(21:16) ← 0"
         ],
-        "type": "BR"
+        "incomplete": true,
+        "type": "BR",
+        "syntax": "IJMP",
+        "opCode": "1001 0100 0000 1001",
+        "examples": [
+            "mov r30,r0 ; Set offset to jump table",
+            "ijmp ; Jump to routine pointed to by r31:r30"
+        ],
+        "words": 1,
+        "cycles": 2
     },
     {
         "mnemonic": "eijmp",
-        "description": "Extended Indirect Jump to (Z)",
+        "name": "Extended Indirect Jump to (Z)",
+        "description": "ndirect jump to the address pointed to by the Z (16 bits) Pointer Register in the Register File and the EIND Register in the I/O space. This instruction allows for indirect jumps to the entire 4M (words) Program memory space. See also IJMP. This instruction is not available in all devices.",
         "operation": [
             "PC(15:0) ← Z",
             "PC(21:16) ← EIND"
         ],
-        "type": "BR"
+        "type": "BR",
+        "syntax": "EIJMP",
+        "examples": [
+            "ldi r16,$05 ; Set up EIND and Z-pointer",
+            "out EIND,r16",
+            "ldi r30,$00",
+            "ldi r31,$10",
+            "eijmp ; Jump to $051000"
+        ],
+        "words": 1,
+        "cycles": 2
     },
     {
         "mnemonic": "jmp",
-        "description": "Jump",
+        "name": "Jump",
+        "description": "Jump to an address within the entire 4M (words) Program memory. See also RJMP. This instruction is not available in all devices.",
         "operation": "PC ← k",
-        "type": "BR"
+        "type": "BR",
+        "syntax": "JMP k",
+        "operands": {
+            "k": "0 ≤ k ≤ 4M"
+        },
+        "opCode": [
+            "1001 010k kkkk 110k",
+            "kkkk kkkk kkkk kkkk"
+        ],
+        "examples": [
+            "mov r1,r0 ; Copy r0 to r1",
+            "jmp farplc ; Unconditional jump",
+            "...",
+            "farplc: nop ; Jump destination (do nothing)"
+        ],
+        "words": 2,
+        "cycles": 3
     },
     {
         "mnemonic": "rcall",
@@ -403,21 +572,60 @@
     },
     {
         "mnemonic": "icall",
-        "description": "Indirect Call to (Z)",
+        "name": "Indirect Call to (Z)",
+        "description": "Calls to a subroutine within the entire 4M (words) Program memory. The return address (to the instruction after the CALL) will be stored onto the Stack. See also RCALL. The Stack Pointer uses a post-decrement scheme during CALL. This instruction is not available in all devices.",
         "operation": [
             "PC(15:0) ← Z",
             "PC(21:16) ← 0"
         ],
-        "type": "BR"
+        "incomplete": true,
+        "type": "BR",
+        "syntax": "ICALL",
+        "opCode": "1001 0101 0000 1001",
+        "examples": [
+            "mov r30,r0 ; Set offset to call table",
+            "icall ; Call routine pointed to by r31:r30"
+        ],
+        "words": 1,
+        "cycles": {
+            "0": {
+                "16bit": 3,
+                "22bit": 4
+            },
+            "x": {
+                "16Bit": 2,
+                "22bit": 3
+            }
+        }
     },
     {
         "mnemonic": "eicall",
-        "description": "Extended Indirect Call to (Z)",
+        "name": "Extended Indirect Call to (Z)",
+        "description": "Indirect call of a subroutine pointed to by the Z (16 bits) Pointer Register in the Register File and the EIND Register in the I/O space. This instruction allows for indirect calls to the entire 4M (words) Program memory space. See also ICALL. The Stack Pointer uses a post-decrement scheme during EICALL. This instruction is not available in all devices.",
         "operation": [
             "PC(15:0) ← Z",
             "PC(21:16) ← EIND"
         ],
-        "type": "BR"
+        "type": "BR",
+        "syntax": "EICALL",
+        "stack": [
+            "STACK ← PC + 1",
+            "SP ← SP - 3 (3 bytes, 22 bits)"
+        ],
+        "opCode": "1001 0101 0001 1001",
+        "examples": [
+            "ldi r16,$05 ; Set up EIND and Z-pointer",
+            "out EIND,r16",
+            "ldi r30,$00",
+            "ldi r31,$10",
+            "eicall ; Call to $051000"
+        ],
+        "words": 1,
+        "cycles": {
+            "0": 4,
+            "x": 3
+        },
+        "notes": "only implemented in devices with 22-bit PC"
     },
     {
         "mnemonic": "call",
@@ -488,9 +696,33 @@
     },
     {
         "mnemonic": "cpse",
-        "description": "Compare, skip if Equal",
-        "operation": "if (Rd = Rr) PC ← PC + 2 or 3",
-        "type": "BR"
+        "name": "Compare, skip if Equal",
+        "description": "This instruction performs a compare between two registers Rd and Rr, and skips the next instruction if Rd = Rr.",
+        "operation": "if (Rd = Rr) PC ← PC + 2 or 3 else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "CPSE Rd,Rr",
+        "operands": {
+            "d": "0 ≤ d ≤ 31",
+            "r": "0 ≤ r ≤ 31"
+        },
+        "pCounter": [
+            "PC ← PC + 1, Condition false - no skip",
+            "PC ← PC + 2, Skip a one word instruction",
+            "PC ← PC + 3, Skip a two word instruction"
+        ],
+        "opCode": "0001 00rd dddd rrrr",
+        "examples": [
+            "inc r4 ; Increase r4",
+            "cpse r4,r0 ; Compare r4 to r0",
+            "neg r4 ; Only executed if r4<>r0",
+            "nop ; Continue (do nothing)"
+        ],
+        "words": 1,
+        "cycles": [
+            "1 if condition is false (no skip)",
+            "2 if condition is true (skip is executed) and the instruction skipped is 1 word",
+            "3 if condition is true (skip is executed) and the instruction skipped is 2 words"
+        ]
     },
     {
         "mnemonic": "cp",
@@ -558,10 +790,34 @@
     },
     {
         "mnemonic": "cpi",
-        "description": "Compare with Immediate",
+        "name": "Compare with Immediate",
+        "description": "This instruction performs a compare between register Rd and a constant. The register is not changed. All conditional branches can be used after this instruction.",
         "operation": "Rd - K",
         "flags": "Z,C,N,V,S,H",
-        "type": "BR"
+        "type": "BR",
+        "syntax": "CPI Rd,K",
+        "operands": {
+            "d": "16 ≤ d ≤ 31",
+            "K": "0 ≤ K ≤ 255"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0011 KKKK dddd KKKK",
+        "status": {
+            "H": "!Rd3 • K3 + K3 • R3 + R3 • !Rd3",
+            "S": "N ⊕ V",
+            "V": "Rd7 • !K7 • !R7 + !Rd7 • K7 • R7",
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0",
+            "C": "!Rd7 • K7 + K7 • R7 + R7 • !Rd7"
+        },
+        "examples": [
+            "cpi r19,3 ; Compare r19 with 3",
+            "brne error ; Branch if r19<>3",
+            "...",
+            "error: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "sbrc",
@@ -1075,87 +1331,109 @@
     },
     {
         "mnemonic": "ld",
-        "description": "Load Indirect",
+        "name": "Load Indirect using Index X",
         "operation": "Rd ← (X)",
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1001 000d dddd 1100"
     },
     {
         "mnemonic": "ld",
-        "description": "Load Indirect and PostIncrement",
+        "name": "Load Indirect and PostIncrement using Index X",
         "operation": [
             "Rd ← (X)",
             "X ← X + 1"
         ],
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1001 000d dddd 1101"
     },
     {
         "mnemonic": "ld",
-        "description": "Load Indirect and PreDecrement",
+        "name": "Load Indirect and PreDecrement using Index X",
         "operation": [
             "X ← X - 1",
             "Rd ← (X)"
         ],
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1001 000d dddd 1110"
     },
     {
         "mnemonic": "ld",
-        "description": "Load Indirect",
+        "name": "Load Indirect using Index Y",
         "operation": "Rd ← (Y)",
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1000 000d dddd 1000"
     },
     {
         "mnemonic": "ld",
-        "description": "Load Indirect and PostIncrement",
+        "name": "Load Indirect and PostIncrement using Index Y",
         "operation": [
             "Rd ← (Y)",
             "Y ← Y + 1"
         ],
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1001 000d dddd 1001"
     },
     {
         "mnemonic": "ld",
-        "description": "Load Indirect and PreDecrement",
+        "name": "Load Indirect and PreDecrement using Index Y",
         "operation": [
             "Y ← Y - 1",
             "Rd ← (Y)"
         ],
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1001 000d dddd 1010"
     },
     {
         "mnemonic": "ldd",
-        "description": "Load Indirect with Displacement",
+        "description": "Load Indirect with Displacement using Index Y",
         "operation": "Rd ← (Y + q)",
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "10q0 qq0d dddd 1qqq"
     },
     {
         "mnemonic": "ld",
-        "description": "Load Indirect",
+        "name": "Load Indirect using Index Z",
         "operation": "Rd ← (Z)",
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1000 000d dddd 0000"
     },
     {
         "mnemonic": "ld",
-        "description": "Load Indirect and PostIncrement",
+        "name": "Load Indirect and PostIncrement using Index Z",
         "operation": [
             "Rd ← (Z)",
             "Z ← Z + 1"
         ],
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1001 000d dddd 0001"
     },
     {
         "mnemonic": "ld",
-        "description": "Load Indirect and PreDecrement",
+        "name": "Load Indirect and PreDecrement using Index Z",
         "operation": [
             "Z ← Z - 1",
             "Rd ← (Z)"
         ],
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1001 000d dddd 0010"
     },
     {
         "mnemonic": "ldd",
-        "description": "Load Indirect with Displacement",
+        "description": "Load Indirect with Displacement using Index Z",
         "operation": "Rd ← (Z + q)",
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "10q0 qq0d dddd 0qqq"
     },
     {
         "mnemonic": "sts",
@@ -1270,24 +1548,54 @@
     },
     {
         "mnemonic": "elpm",
-        "description": "Extended Load Program Memory",
-        "operation": "R0 ← (RAMPZ:Z)",
-        "type": "DT"
-    },
-    {
-        "mnemonic": "elpm",
-        "description": "Extended Load Program Memory",
-        "operation": "Rd ← (RAMPZ:Z)",
-        "type": "DT"
-    },
-    {
-        "mnemonic": "elpm",
-        "description": "Extended Load Program Memory and PostIncrement",
-        "operation": [
-            "Rd ← (RAMPZ:Z)",
-            "(RAMPZ:Z) ← (RAMPZ:Z) + 1"
+        "description": "Loads one byte pointed to by the Z-register and the RAMPZ Register in the I/O space, and places this byte in the destination register Rd. This instruction features a 100% space effective constant initialization or constant data fetch. The Program memory is organized in 16-bit words while the Z-pointer is a byte address. Thus, the least significant bit of the Z-pointer selects either low byte (ZLSB = 0) or high byte (ZLSB = 1). This instruction can address the entire Program memory space. The Z-pointer Register can either be left unchanged by the operation, or it can be incremented. The incrementation applies to the entire 24-bit concatenation of the RAMPZ and Z-pointer Registers. Devices with Self-Programming capability can use the ELPM instruction to read the Fuse and Lock bit value. Refer to the device documentation for a detailed description. This instruction is not available in all devices.",
+        "operations": [
+            {
+                "name": "Extended Load Program Memory",
+                "syntax": "ELPM",
+                "operation": "R0 ← (RAMPZ:Z)",
+                "opCode": "1001 0101 1101 1000"
+            },
+            {
+                "name": "Extended Load Program Memory",
+                "syntax": "ELPM Rd, Z",
+                "operands": {
+                    "d": "0 ≤ d ≤ 31"
+                },
+                "opCode": "1001 000d dddd 0110"
+            },
+            {
+                "name": "Extended Load Program Memory and PostIncrement",
+                "operation": [
+                    "Rd ← (RAMPZ:Z)",
+                    "(RAMPZ:Z) ← (RAMPZ:Z) + 1"
+                ],
+                "syntax": "ELPM Rd, Z+",
+                "operands": {
+                    "d": "0 ≤ d ≤ 31"
+                },
+                "opCode": "1001 000d dddd 0111"
+            }
         ],
-        "type": "DT"
+        "pCounter": "PC ← PC + 1",
+        "type": "DT",
+        "notes": [
+            "The result of these combinations is undefined:",
+            "ELPM r30, Z+",
+            "ELPM r31, Z+"
+        ],
+        "examples": [
+            "ldi ZL, byte3(Table_1<<1) ; Initialize Z-pointer",
+            "out RAMPZ, ZL",
+            "ldi ZH, byte2(Table_1<<1)",
+            "ldi ZL, byte1(Table_1<<1)",
+            "elpm r16, Z+ ; Load constant from Program",
+            "; memory pointed to by RAMPZ:Z (Z is r31:r30)",
+            "...",
+            "Table_1:",
+            ".dw 0x3738 ; 0x38 is addressed when ZLSB = 0",
+            "; 0x37 is  addressed when ZLSB = 1"
+        ]
     },
     {
         "mnemonic": "spm",
@@ -1306,9 +1614,26 @@
     },
     {
         "mnemonic": "in",
-        "description": "In From I/O Location",
+        "name": "In From I/O Location",
+        "description": "Loads data from the I/O Space (Ports, Timers, Configuration Registers, etc.) into register Rd in the Register File.",
         "operation": "Rd ← I/O(A)",
-        "type": "DT"
+        "type": "DT",
+        "syntax": "IN Rd,A",
+        "operands": {
+            "d": "0 ≤ d ≤ 31",
+            "A": "0 ≤ A ≤ 63"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1011 0AAd dddd AAAA",
+        "examples": [
+            "in r25,$16 ; Read Port B",
+            "cpi r25,4 ; Compare read value to constant",
+            "breq exit ; Branch if r25=4",
+            "...",
+            "exit: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "out",
@@ -1339,30 +1664,60 @@
     },
     {
         "mnemonic": "las",
-        "description": "Load and Set",
+        "name": "Load and Set",
+        "description": "Load one byte indirect from data space to register and set bits in data space specified by the register. The instruction can only be used towards internal SRAM. The data location is pointed to by the Z (16 bits) Pointer Register in the Register File. Memory access is limited to the current data segment of 64KB. To access another data segment in devices with more than 64KB data space, the RAMPZ in register in the I/O area has to be changed. The Z-pointer Register is left unchanged by the operation. This instruction is especially suited for setting status bits stored in SRAM.",
         "operation": [
             "(Z) ← Rd v (Z)",
             "Rd ← (Z)"
         ],
-        "type": "DT"
+        "type": "DT",
+        "syntax": "LAS Z,Rd",
+        "operands": {
+            "d": "0 ≤ d ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 001r rrrr 0101",
+        "words": 1,
+        "cycles": 2,
+        "error": true
     },
     {
         "mnemonic": "lac",
-        "description": "Load and Clear",
+        "name": "Load and Clear",
+        "description": "Load one byte indirect from data space to register and stores and clear the bits in data space specified by the register. The instruction can only be used towards internal SRAM. The data location is pointed to by the Z (16 bits) Pointer Register in the Register File. Memory access is limited to the current data segment of 64KB. To access another data segment in devices with more than 64KB data space, the RAMPZ in register in the I/O area has to be changed. The Z-pointer Register is left unchanged by the operation. This instruction is especially suited for clearing status bits stored in SRAM.",
         "operation": [
             "(Z) ← ($FF – Rd) • (Z)",
             "Rd ← (Z)"
         ],
-        "type": "DT"
+        "type": "DT",
+        "syntax": "LAC Z,Rd",
+        "operands": {
+            "d": "0 ≤ d ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 001r rrrr 0110",
+        "words": 1,
+        "cycles": 2,
+        "error": true
     },
     {
         "mnemonic": "lat",
-        "description": "Load and Toggle",
+        "name": "Load and Toggle",
+        "description": "Load one byte indirect from data space to register and toggles bits in the data space specified by the register. The instruction can only be used towards SRAM. The data location is pointed to by the Z (16 bits) Pointer Register in the Register File. Memory access is limited to the current data segment of 64KB. To access another data segment in devices with more than 64KB data space, the RAMPZ in register in the I/O area has to be changed. The Z-pointer Register is left unchanged by the operation. This instruction is especially suited for changing status bits stored in SRAM.",
         "operation": [
             "(Z) ← Rd ⊕ (Z)",
             "Rd ← (Z)"
         ],
-        "type": "DT"
+        "type": "DT",
+        "syntax": "LAT Z,Rd",
+        "operands": {
+            "d": "0 ≤ d ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 001r rrrr 0111",
+        "words": 1,
+        "cycles": 2,
+        "error": true
     },
     {
         "mnemonic": "lsl",
