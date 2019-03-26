@@ -204,11 +204,9 @@
     },
     {
         "mnemonic": "sbr",
-        "description": "Set${opType.name} (${opType.id})
-        "operation": "Rd ← ${opType.name} (${opType.id})
-        "flags": "Z,N,V,S",${opType.name
-        } (${opType.id
-        })
+        "description": "Set Bit(s) in Register",
+        "operation": "Rd ← Rd v K",
+        "flags": "Z,N,V,S",
         "type": "AL"
     },
     {
@@ -502,9 +500,28 @@
     },
     {
         "mnemonic": "brne",
-        "description": "Branch if Not Equal",
-        "operation": "if (Z = 0) then PC ← PC + k + 1",
-        "type": "BR"
+        "name": "Branch if Not Equal",
+        "description": "Conditional relative branch. Tests the Zero Flag (Z) and branches relatively to PC if Z is cleared. If the instruction is executed immediately after any of the instructions CP, CPI, SUB, or SUBI, the branch will occur if and only if, the unsigned or signed binary number represented in Rd was not equal to the unsigned or signed binary number represented in Rr. This instruction branches relatively to PC in either direction (PC - 63 ≤ destination ≤ PC + 64). Parameter k is the offset from PC and is represented in two’s complement form. (Equivalent to instruction BRBC 1,k.)",
+        "operation": "if (Z = 0) then PC ← PC + k + 1, else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "BRNE k",
+        "operands": {
+            "k": "-64 ≤ k ≤ +63"
+        },
+        "opCode": "1111 01kk kkkk k001",
+        "examples": [
+            "eor r27,r27 ; Clear r27",
+            "loop: inc r27 ; Increase r27",
+            "...",
+            "cpi r27,5 ; Compare r27 to 5",
+            "brne loop ; Branch if r27<>5",
+            "nop ; Loop exit (do nothing)"
+        ],
+        "words": 1,
+        "cycles": [
+            "1 if condition is false",
+            "2 if condition is true"
+        ]
     },
     {
         "mnemonic": "brcs",
@@ -554,27 +571,97 @@
     },
     {
         "mnemonic": "brsh",
-        "description": "Branch if Same or Higher",
-        "operation": "if (C = 0) then PC ← PC + k + 1",
-        "type": "BR"
+        "name": "Branch if Same or Higher",
+        "description": "Conditional relative branch. Tests the Carry Flag (C) and branches relatively to PC if C is cleared. If the instruction is executed immediately after execution of any of the instructions CP, CPI, SUB, or SUBI, the branch will occur if and only if, the unsigned binary number represented in Rd was greater than or equal to the unsigned binary number represented in Rr. This instruction branches relatively to PC in either direction (PC - 63 ≤ destination ≤ PC + 64). Parameter k is the offset from PC and is represented in two’s complement form. (Equivalent to instruction BRBC 0,k.)",
+        "operation": "if (C = 0) then PC ← PC + k + 1, else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "BRSH k",
+        "operands": {
+            "k": "-64 ≤ k ≤ +63"
+        },
+        "opCode": "1111 01kk kkkk k000",
+        "examples": [
+            "subi r19,4 ; Subtract 4 from r19",
+            "brsh highsm ; Branch if r19 >= 4 (unsigned)".
+            "...",
+            "highsm: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": [
+            "1 if condition is false",
+            "2 if condition is true"
+        ]
     },
     {
         "mnemonic": "brlo",
-        "description": "Branch if Lower",
-        "operation": "if (C = 1) then PC ← PC + k + 1",
-        "type": "BR"
+        "name": "Branch if Lower",
+        "description": "Conditional relative branch. Tests the Carry Flag (C) and branches relatively to PC if C is set. If the instruction is executed immediately after any of the instructions CP, CPI, SUB, or SUBI, the branch will occur if and only if, the unsigned binary number represented in Rd was smaller than the unsigned binary number represented in Rr. This instruction branches relatively to PC in either direction (PC - 63 ≤ destination ≤ PC + 64). Parameter k is the offset from PC and is represented in two’s complement form. (Equivalent to instruction BRBS 0,k.)",
+        "operation": "if (C = 1) then PC ← PC + k + 1, else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "BRLO k",
+        "operands": {
+            "k": "-64 ≤ k ≤ +63"
+        },
+        "opCode": "1111 00kk kkkk k000",
+        "examples": [
+            "eor r19,r19 ; Clear r19",
+            "loop: inc r19 ; Increase r19",
+            "...",
+            "cpi r19,$10 ; Compare r19 with $10",
+            "brlo loop ; Branch if r19 < $10 (unsigned)",
+            "nop ; Exit from loop (do nothing)"
+        ],
+        "words": 1,
+        "cycles": [
+            "1 if condition is false",
+            "2 if condition is true"
+        ]
     },
     {
         "mnemonic": "brmi",
-        "description": "Branch if Minus",
-        "operation": "if (N = 1) then PC ← PC + k + 1",
-        "type": "BR"
+        "name": "Branch if Minus",
+        "description": "Conditional relative branch. Tests the Negative Flag (N) and branches relatively to PC if N is set. This instruction branches relatively to PC in either direction (PC - 63 ≤ destination ≤ PC + 64). Parameter k is the offset from PC and is represented in two’s complement form. (Equivalent to instruction BRBS 2,k.)",
+        "operation": "if (N = 1) then PC ← PC + k + 1, else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "BRMI k",
+        "operands": {
+            "k": "-64 ≤ k ≤ +63"
+        },
+        "opCode": "1111 00kk kkkk k010",
+        "examples": [
+            "subi r18,4 ; Subtract 4 from r18",
+            "brmi negative ; Branch if result negative",
+            "...",
+            "negative: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": [
+            "1 if condition is false",
+            "2 if condition is true"
+        ]
     },
     {
         "mnemonic": "brpl",
-        "description": "Branch if Plus",
-        "operation": "if (N = 0) then PC ← PC + k + 1",
-        "type": "BR"
+        "name": "Branch if Plus",
+        "description": "Conditional relative branch. Tests the Negative Flag (N) and branches relatively to PC if N is cleared. This instruction branches relatively to PC in either direction (PC - 63 ≤ destination ≤ PC + 64). Parameter k is the offset from PC and is represented in two’s complement form. (Equivalent to instruction BRBC 2,k.)",
+        "operation": "if (N = 0) then PC ← PC + k + 1, else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "BRPL k",
+        "operands": {
+            "k": "-64 ≤ k ≤ +63"
+        },
+        "opCode": "1111 01kk kkkk k010",
+        "examples": [
+            "subi r26,$50 ; Subtract $50 from r26",
+            "brpl positive ; Branch if r26 positive",
+            "...",
+            "positive: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": [
+            "1 if condition is false",
+            "2 if condition is true"
+        ]
     },
     {
         "mnemonic": "brge",
@@ -601,15 +688,48 @@
     },
     {
         "mnemonic": "brlt",
-        "description": "Branch if Less Than, Signed",
-        "operation": "if (N ⊕ V= 1) then PC ← PC + k + 1",
-        "type": "BR"
+        "name": "Branch if Less Than, Signed",
+        "description": "Conditional relative branch. Tests the Signed Flag (S) and branches relatively to PC if S is set. If the instruction is executed immediately after any of the instructions CP, CPI, SUB, or SUBI, the branch will occur if and only if, the signed binary number represented in Rd was less than the signed binary number represented in Rr. This instruction branches relatively to PC in either direction (PC - 63 ≤ destination ≤ PC + 64). Parameter k is the offset from PC and is represented in two’s complement form. (Equivalent to instruction BRBS 4,k.)",
+        "operation": "if (N ⊕ V= 1) then PC ← PC + k + 1, else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "BRLT k",
+        "operands": {
+            "k": "-64 ≤ k ≤ +63"
+        },
+        "opCode": "1111 00kk kkkk k100",
+        "examples": [
+            "cp r16,r1 ; Compare r16 to r1",
+            "brlt less ; Branch if r16 < r1 (signed)",
+            "...",
+            "less: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": [
+            "1 if condition is false",
+            "2 if condition is true"
+        ]
     },
     {
         "mnemonic": "brhs",
-        "description": "Branch if Half Carry Flag Set",
-        "operation": "if (H = 1) then PC ← PC + k + 1",
-        "type": "BR"
+        "name": "Branch if Half Carry Flag Set",
+        "description": "Conditional relative branch. Tests the Half Carry Flag (H) and branches relatively to PC if H is set. This instruction branches relatively to PC in either direction (PC - 63 ≤ destination ≤ PC + 64). Parameter k is the offset from PC and is represented in two’s complement form. (Equivalent to instruction BRBS 5,k.)",
+        "operation": "if (H = 1) then PC ← PC + k + 1, else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "BRHS k",
+        "operands": {
+            "k": "-64 ≤ k ≤ +63"
+        },
+        "opCode": "1111 00kk kkkk k101",
+        "examples": [
+            "brhs hset ; Branch if Half Carry Flag set",
+            "...",
+            "hset: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": [
+            "1 if condition is false",
+            "2 if condition is true"
+        ]
     },
     {
         "mnemonic": "brhc",
@@ -641,9 +761,21 @@
     },
     {
         "mnemonic": "brtc",
-        "description": "Branch if T Flag Cleared",
-        "operation": "if (T = 0) then PC ← PC + k + 1",
-        "type": "BR"
+        "name": "Branch if T Flag Cleared",
+        "description": "Conditional relative branch. Tests the T Flag and branches relatively to PC if T is cleared. This instruction branches relatively to PC in either direction (PC - 63 ≤ destination ≤ PC + 64). Parameter k is the offset from PC and is represented in two’s complement form. (Equivalent to instruction BRBC 6,k.)",
+        "operation": "if (T = 0) then PC ← PC + k + 1, else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "BRTC k",
+        "operands": {
+            "k": "-64 ≤ k ≤ +63"
+        },
+        "opCode": "1111 01kk kkkk k110",
+        "examples": [
+            "bst r3,5 ; Store bit 5 of r3 in T Flag",
+            "brtc tclear ; Branch if this bit was cleared",
+            "...",
+            "tclear: nop ; Branch destination (do nothing)"
+        ]
     },
     {
         "mnemonic": "brvs",
@@ -659,15 +791,47 @@
     },
     {
         "mnemonic": "brie",
-        "description": "Branch if Interrupt Enabled",
-        "operation": "if (I = 1) then PC ← PC + k + 1",
-        "type": "BR"
+        "name": "Branch if Interrupt Enabled",
+        "description": "Conditional relative branch. Tests the Global Interrupt Flag (I) and branches relatively to PC if I is set. This instruction branches relatively to PC in either direction (PC - 63 ≤ destination ≤ PC + 64). Parameter k is the offset from PC and is represented in two’s complement form. (Equivalent to instruction BRBS 7,k.)",
+        "operation": "if (I = 1) then PC ← PC + k + 1, else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "BRIE k",
+        "operands": {
+            "k": "-64 ≤ k ≤ +63"
+        },
+        "opCode": "1111 00kk kkkk k111",
+        "examples": [
+            "brie inten ; Branch if interrupt enabled",
+            "...",
+            "inten: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": [
+            "1 if condition is false",
+            "2 if condition is true"
+        ]
     },
     {
         "mnemonic": "brid",
-        "description": "Branch if Interrupt Disabled",
-        "operation": "if (I = 0) then PC ← PC + k + 1 ",
-        "type": "BR"
+        "name": "Branch if Interrupt Disabled",
+        "description": "Conditional relative branch. Tests the Global Interrupt Flag (I) and branches relatively to PC if I is cleared. This instruction branches relatively to PC in either direction (PC - 63 ≤ destination ≤ PC + 64). Parameter k is the offset from PC and is represented in two’s complement form. (Equivalent to instruction BRBC 7,k.)",
+        "operation": "if (I = 0) then PC ← PC + k + 1, else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "BRID k",
+        "operands": {
+            "k": "-64 ≤ k ≤ +63"
+        },
+        "opCode": "1111 01kk kkkk k111",
+        "examples": [
+            "brid intdis ; Branch if interrupt disabled",
+            "...",
+            "intdis: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": [
+            "1 if condition is false",
+            "2 if condition is true"
+        ]
     },
     {
         "mnemonic": "mov",
