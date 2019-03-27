@@ -79,17 +79,65 @@
     },
     {
         "mnemonic": "sub",
-        "description": "Subtract without Carry",
+        "name": "Subtract without Carry",
+        "description": "Subtracts two registers and places the result in the destination register Rd.",
         "operation": "Rd ← Rd - Rr",
         "flags": "Z,C,N,V,S,H",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "SUB Rd,Rr",
+        "operands": {
+            "d": "0 ≤ d ≤ 31",
+            "r": "0 ≤ r ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0001 10rd dddd rrrr",
+        "status": {
+            "H": "!Rd3 • Rr3 + Rr3 • R3 + R3 • !Rd3",
+            "S": "N ⊕ V",
+            "V": "Rd7 • !Rr7 • !R7 + !Rd7 • Rr7 • R7",
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0",
+            "C": "!Rd7 • Rr7 + Rr7 • R7 + R7 • !Rd7"
+        },
+        "examples": [
+            "sub r13,r12 ; Subtract r12 from r13",
+            "brne noteq ; Branch if r12<>r13",
+            "...",
+            "noteq: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "subi",
-        "description": "Subtract Immediate",
+        "name": "Subtract Immediate",
+        "description": "Subtracts a register and a constant, and places the result in the destination register Rd. This instruction is working on Register R16 to R31 and is very well suited for operations on the X, Y, and Z-pointers.",
         "operation": "Rd ← Rd - K",
         "flags": "Z,C,N,V,S,H",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "SUBI Rd,K",
+        "operands": {
+            "d": "16 ≤ d ≤ 31",
+            "K": "0 ≤ K ≤ 255"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0101 KKKK dddd KKKK",
+        "status": {
+            "H": "!Rd3 • K3 + K3 • R3 + R3 • !Rd3",
+            "S": "N ⊕ V",
+            "V": "Rd7 • !K7 • !R7 + !Rd7 • K7 • R7",
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0",
+            "C": "!Rd7 • K7 + K7 • R7 + R7 • !Rd7"
+        },
+        "examples": [
+            "subi r22,$11 ; Subtract $11 from r22",
+            "brne noteq ; Branch if r22<>$11",
+            "...",
+            "noteq: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "sbc",
@@ -152,10 +200,31 @@
     },
     {
         "mnemonic": "sbiw",
-        "description": "Subtract Immediate from Word",
+        "name": "Subtract Immediate from Word",
+        "description": "Subtracts an immediate value (0-63) from a register pair and places the result in the register pair. This instruction operates on the upper four register pairs, and is well suited for operations on the Pointer Registers. This instruction is not available in all devices.",
         "operation": "Rd + 1:Rd ← Rd + 1:Rd - K",
         "flags": "Z,C,N,V,S",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "SBIW Rd+1:Rd,K",
+        "operands": {
+            "d": "d ∈ {24,26,28,30}",
+            "K": "0 ≤ K ≤ 63"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0111 KKdd KKKK",
+        "status": {
+            "S": "N ⊕ V",
+            "V": "R15 • !Rdh7",
+            "N": "R15",
+            "Z": "!R15 • !R14 • !R13 • !R12 • !R11 • !R10 • !R9 • !R8R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0",
+            "C": "R15 • !Rdh7"
+        },
+        "examples": [
+            "sbiw r25:r24,1 ; Subtract 1 from r25:r24",
+            "sbiw YH:YL,63 ; Subtract 63 from the Y-pointer(r29:r28)"
+        ],
+        "words": 1,
+        "cycles": 2
     },
     {
         "mnemonic": "and",
@@ -357,10 +426,30 @@
     },
     {
         "mnemonic": "sbr",
-        "description": "Set Bit(s) in Register",
+        "name": "Set Bit(s) in Register",
+        "description": "Sets specified bits in register Rd. Performs the logical ORI between the contents of register Rd and a constant mask K, and places the result in the destination register Rd.",
         "operation": "Rd ← Rd v K",
         "flags": "Z,N,V,S",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "SBR Rd,K",
+        "operands": {
+            "d": "16 ≤ d ≤ 31",
+            "K": "0 ≤ K ≤ 255"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0110 KKKK dddd KKKK",
+        "status": {
+            "S": "N ⊕ V",
+            "V": 0,
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0"
+        },
+        "examples": [
+            "sbr r16,3 ; Set bits 0 and 1 in r16",
+            "sbr r17,$F0 ; Set 4 MSB in r17"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "cbr",
@@ -449,10 +538,31 @@
     },
     {
         "mnemonic": "tst",
-        "description": "Test for Zero or Minus",
+        "name": "Test for Zero or Minus",
+        "description": "Tests if a register is zero or negative. Performs a logical AND between a register and itself. The register will remain unchanged.",
         "operation": "Rd ← Rd • Rd",
         "flags": "Z,N,V,S",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "TST Rd",
+        "operands": {
+            "d": "0 ≤ d ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0010 00dd dddd dddd",
+        "status": {
+            "S": "N ⊕ V",
+            "V": 0,
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0"
+        },
+        "examples": [
+            "tst r0 ; Test r0",
+            "breq zero ; Branch if r0=0",
+            "...",
+            "zero: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "clr",
@@ -485,10 +595,26 @@
     },
     {
         "mnemonic": "ser",
-        "description": "Set Register",
+        "name": "Set Register",
+        "description": "Loads $FF directly to register Rd",
         "operation": "Rd ← $FF",
         "flags": "",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "SER Rd",
+        "operands": {
+            "d": "16 ≤ d ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1110 1111 dddd 1111",
+        "examples": [
+            "clr r16 ; Clear r16",
+            "ser r17 ; Set r17",
+            "out $18,r16 ; Write zeros to Port B",
+            "nop ; Delay (do nothing)",
+            "out $18,r17 ; Write ones to Port B"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "mul",
@@ -1117,27 +1243,135 @@
     },
     {
         "mnemonic": "sbrc",
-        "description": "Skip if Bit in Register Cleared",
-        "operation": "if (Rr(b) = 0) PC ← PC + 2 or 3",
-        "type": "BR"
+        "name": "Skip if Bit in Register Cleared",
+        "description": "This instruction tests a single bit in a register and skips the next instruction if the bit is cleared",
+        "operation": "if (Rr(b) = 0) PC ← PC + 2 or 3 else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "SBRC Rr,b",
+        "operands": {
+            "r": "0 ≤ r ≤ 31",
+            "b": "0 ≤ b ≤ 7"
+        },
+        "pCounter": [
+            "PC ← PC + 1, Condition false - no skip",
+            "PC ← PC + 2, Skip a one word instruction",
+            "PC ← PC + 3, Skip a two word instruction"
+        ],
+        "opCode": "1111 110r rrrr 0bbb",
+        "examples": [
+            "sub r0,r1 ; Subtract r1 from r0",
+            "sbrc r0,7 ; Skip if bit 7 in r0 cleared",
+            "sub r0,r1 ; Only executed if bit 7 in r0 not cleared",
+            "nop ; Continue (do nothing)"
+        ],
+        "words": 1,
+        "cycles": [
+            "1 if condition is false (no skip)",
+            "2 if condition is true (skip is executed) and the instruction skipped is 1 word",
+            "3 if condition is true (skip is executed) and the instruction skipped is 2 words"
+        ]
     },
     {
         "mnemonic": "sbrs",
-        "description": "Skip if Bit in Register Set",
-        "operation": "if (Rr(b) = 1) PC ← PC + 2 or 3",
-        "type": "BR"
+        "name": "Skip if Bit in Register Set",
+        "description": "This instruction tests a single bit in a register and skips the next instruction if the bit is set.",
+        "operation": "if (Rr(b) = 1) PC ← PC + 2 or 3 else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "SBRS Rr,b",
+        "operands": {
+            "r": "0 ≤ r ≤ 31",
+            "b": "0 ≤ b ≤ 7"
+        },
+        "pCounter": [
+            "PC ← PC + 1, Condition false - no skip",
+            "PC ← PC + 2, Skip a one word instruction",
+            "PC ← PC + 3, Skip a two word instruction"
+        ],
+        "opCode": "1111 111r rrrr 0bbb",
+        "examples": [
+            "sub r0,r1 ; Subtract r1 from r0",
+            "sbrs r0,7 ; Skip if bit 7 in r0 set",
+            "neg r0 ; Only executed if bit 7 in r0 not set",
+            "nop ; Continue (do nothing)"
+        ],
+        "words": 1,
+        "cycles": [
+            "1 if condition is false (no skip)",
+            "2 if condition is true (skip is executed) and the instruction skipped is 1 word",
+            "3 if condition is true (skip is executed) and the instruction skipped is 2 words"
+        ]
     },
     {
         "mnemonic": "sbic",
-        "description": "Skip if Bit in I/O Register Cleared",
-        "operation": "if (I/O(A,b) = 0) PC ← PC + 2 or 3",
-        "type": "BR"
+        "name": "Skip if Bit in I/O Register Cleared",
+        "description": "This instruction tests a single bit in an I/O Register and skips the next instruction if the bit is cleared. This instruction operates on the lower 32 I/O Registers – addresses 0-31.",
+        "operation": "if (I/O(A,b) = 0) PC ← PC + 2 or 3 else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "SBIC A,b",
+        "operands": {
+            "A": "0 ≤ A ≤ 31",
+            "b": "0 ≤ b ≤ 7"
+        },
+        "pCounter": [
+            "PC ← PC + 1, Condition false - no skip",
+            "PC ← PC + 2, Skip a one word instruction",
+            "PC ← PC + 3, Skip a two word instruction"
+        ],
+        "opCode": "1001 1001 AAAA Abbb",
+        "examples": [
+            "e2wait: sbic $1C,1 ; Skip next inst. if EEWE cleared",
+            "rjmp e2wait ; EEPROM write not finished",
+            "nop ; Continue (do nothing)"
+        ],
+        "words": 1,
+        "cycles": {
+            "0": [
+                "1 if condition is false (no skip)",
+                "2 if condition is true (skip is executed) and the instruction skipped is 1 word",
+                "3 if condition is true (skip is executed) and the instruction skipped is 2 words"
+            ],
+            "x": [
+                "2 if condition is false (no skip)",
+                "3 if condition is true (skip is executed) and the instruction skipped is 1 word",
+                "4 if condition is true (skip is executed) and the instruction skipped is 2 words"
+            ]
+        }
     },
     {
         "mnemonic": "sbis",
-        "description": "Skip if Bit in I/O Register Set",
-        "operation": "If (I/O(A,b) =1) PC ← PC + 2 or 3 ",
-        "type": "BR"
+        "name": "Skip if Bit in I/O Register Set",
+        "description": "This instruction tests a single bit in an I/O Register and skips the next instruction if the bit is set. This instruction operates on the lower 32 I/O Registers – addresses 0-31.",
+        "operation": "If (I/O(A,b) =1) PC ← PC + 2 or 3 else PC ← PC + 1",
+        "type": "BR",
+        "syntax": "SBIS A,b",
+        "operands": {
+            "A": "0 ≤ A ≤ 31",
+            "b": "0 ≤ b ≤ 7"
+        },
+        "pCounter": [
+            "PC ← PC + 1, Condition false - no skip",
+            "PC ← PC + 2, Skip a one word instruction",
+            "PC ← PC + 3, Skip a two word instruction"
+        ],
+        "opCode": "1001 1011 AAAA Abbb",
+        "examples": [
+            "waitset: sbis $10,0 ; Skip next inst. if bit 0 in Port D set",
+            "rjmp waitset ; Bit not set",
+            "nop ; Continue (do nothing)"
+        ],
+        "words": 1,
+        "cycles": {
+            "0": [
+                "1 if condition is false (no skip)",
+                "2 if condition is true (skip is executed) and the instruction skipped is 1 word",
+                "3 if condition is true (skip is executed) and the instruction skipped is 2 words"
+            ],
+            "x": [
+                "2 if condition is false (no skip)",
+                "3 if condition is true (skip is executed) and the instruction skipped is 1 word",
+                "4 if condition is true (skip is executed) and the instruction skipped is 2 words"
+            ]
+        }
     },
     {
         "mnemonic": "brbs",
@@ -1810,93 +2044,151 @@
     },
     {
         "mnemonic": "sts",
-        "description": "Store Direct to Data Space",
+        "name": "Store Direct to Data Space",
+        "description": "Stores one byte from a Register to the data space. For parts with SRAM, the data space consists of the Register File, I/O memory, and internal SRAM (and external SRAM if applicable). For parts without SRAM, the data space consists of the Register File only. The EEPROM has a separate address space. A 16-bit address must be supplied. Memory access is limited to the current data segment of 64KB. The STS instruction uses the RAMPD Register to access memory above 64KB. To access another data segment in devices with more than 64KB data space, the RAMPD in register in the I/O area has to be changed. This instruction is not available in all devices.",
         "operation": "(k) ← Rd",
-        "type": "DT"
+        "type": "DT",
+        "syntax": "STS k,Rr",
+        "operands": {
+            "r": "0 ≤ r ≤ 31",
+            "k": "0 ≤ k ≤ 65535"
+        },
+        "pCounter": "PC ← PC + 2",
+        "error": true,
+        "opCode": [
+            "1001 001d dddd 0000",
+            "kkkk kkkk kkkk kkkk"
+        ],
+        "examples": [
+            "lds r2,$FF00 ; Load r2 with the contents of data space location $FF00",
+            "add r2,r1 ; add r1 to r2",
+            "sts $FF00,r2 ; Write back"
+        ],
+        "words": 2,
+        "cycles": 2,
+        "16bit": {
+            "operands": {
+                "r": "16 ≤ d ≤ 31",
+                "k": "0 ≤ k ≤ 65535"
+            },
+            "opCode": "1010 1kkk dddd kkkk",
+            "examples": [
+                "lds r16,$00 ; Load r16 with the contents of data space location $00",
+                "add r16,r17 ; add r17 to r16",
+                "sts $00,r16 ; Write result to the same address it was fetched from"
+            ],
+            "words": 1,
+            "cycles": 1,
+            "notes": [
+                "Registers r0...r15 are remapped to r16...r31"
+            ]
+        }
     },
     {
         "mnemonic": "st",
-        "description": "Store Indirect",
+        "description": "Store Indirect using Index X",
         "operation": "(X) ← Rr",
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1001 001r rrrr 1100"
     },
     {
         "mnemonic": "st",
-        "description": "Store Indirect and PostIncrement",
+        "description": "Store Indirect and PostIncrement using Index X",
         "operation": [
             "(X) ← Rr",
             "X ← X + 1"
         ],
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1001 001r rrrr 1101"
     },
     {
         "mnemonic": "st",
-        "description": "Store Indirect and PreDecrement",
+        "description": "Store Indirect and PreDecrement using Index X",
         "operation": [
             "X ← X - 1",
             "(X) ← Rr"
         ],
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1001 001r rrrr 1110"
     },
     {
         "mnemonic": "st",
-        "description": "Store Indirect",
+        "description": "Store Indirect using Index Y",
         "operation": "(Y) ← Rr",
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1000 001r rrrr 1000"
     },
     {
         "mnemonic": "st",
-        "description": "Store Indirect and PostIncrement",
+        "description": "Store Indirect and PostIncrement using Index Y",
         "operation": [
             "(Y) ← Rr",
             "Y ← Y + 1"
         ],
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1001 001r rrrr 1001"
     },
     {
         "mnemonic": "st",
-        "description": "Store Indirect and PreDecrement",
+        "description": "Store Indirect and PreDecrement using Index Y",
         "operation": [
             "Y ← Y - 1",
             "(Y) ← Rr"
         ],
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1001 001r rrrr 1010"
     },
     {
         "mnemonic": "std",
-        "description": "r Store Indirect with Displacement",
+        "description": "r Store Indirect with Displacement using Index Y",
         "operation": "(Y + q) ← Rr",
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "10q0 qq1r rrrr 1qqq"
     },
     {
         "mnemonic": "st",
-        "description": "Store Indirect",
+        "description": "Store Indirect using Index Z",
         "operation": "(Z) ← Rr",
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1000 001r rrrr 0000"
     },
     {
         "mnemonic": "st",
-        "description": "Store Indirect and PostIncrement",
+        "description": "Store Indirect and PostIncrement using Index Z",
         "operation": [
             "(Z) ← Rr",
             "Z ← Z + 1"
         ],
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1001 001r rrrr 0001"
     },
     {
         "mnemonic": "st",
-        "description": "Store Indirect and PreDecrement",
+        "description": "Store Indirect and PreDecrement using Index Z",
         "operation": [
             "Z ← Z - 1",
             "(Z) ← Rr"
         ],
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "1001 001r rrrr 0010"
     },
     {
         "mnemonic": "std",
-        "description": "r Store Indirect with Displacement",
+        "description": "r Store Indirect with Displacement using Index Z",
         "operation": "(Z + q) ← Rr",
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "opCode": "10q0 qq1r rrrr 0qqq"
     },
     {
         "mnemonic": "lpm",
@@ -1993,18 +2285,38 @@
     },
     {
         "mnemonic": "spm",
-        "description": "Store Program Memory",
+        "name": "Store Program Memory",
+        "description": "SPM can be used to erase a page in the Program memory, to write a page in the Program memory (that is already erased), and to set Boot Loader Lock bits. In some devices, the Program memory can be written one word at a time, in other devices an entire page can be programmed simultaneously after first filling a temporary page buffer. In all cases, the Program memory must be erased one page at a time. When erasing the Program memory, the RAMPZ and Z-register are used as page address. When writing the Program memory, the RAMPZ and Z-register are used as page or word address, and the R1:R0 register pair is used as data(1). When setting the Boot Loader Lock bits, the R1:R0 register pair is used as data. Refer to the device documentation for detailed description of SPM usage. This instruction can address the entire Program memory. The SPM instruction is not available in all devices.",
         "operation": "(RAMPZ:Z) ← R1:R0",
-        "type": "DT"
+        "type": "DT",
+        "incomplete": true,
+        "notes": [
+            " 1. R1 determines the instruction high byte, and R0 determines the instruction low byte."
+        ],
+        "opCode": "1001 0101 1110 1000",
+        "words": 1,
+        "cycles": "Depends on the operation"
     },
     {
         "mnemonic": "spm",
-        "description": "Store Program Memory and PostIncrement by 2",
+        "name": "Store Program Memory and PostIncrement by 2",
+        "description": "SPM can be used to erase a page in the Program memory and to write a page in the Program memory (that is already erased). An entire page can be programmed simultaneously after first filling a temporary page buffer. The Program memory must be erased one page at a time. When erasing the Program memory, the RAMPZ and Z-register are used as page address. When writing the Program memory, the RAMPZ and Z-register are used as page or word address, and the R1:R0 register pair is used as data(1). Refer to the device documentation for detailed description of SPM usage. This instruction can address the entire Program memory.",
         "operation": [
             "(RAMPZ:Z) ← R1:R0",
             "Z ← Z + 2"
         ],
-        "type": "DT"
+        ,
+        "incomplete": true,
+        "type": "DT",
+        "notes": [
+            "1. R1 determines the instruction high byte, and R0 determines the instruction low byte."
+        ],
+        "opCode": [
+            "1001 0101 1110 1000",
+            "1001 0101 1111 1000"
+        ],
+        "words": 1,
+        "cycles": "Depends on the operation"
     },
     {
         "mnemonic": "in",
@@ -2109,12 +2421,22 @@
     },
     {
         "mnemonic": "xch",
-        "description": "Exchange",
+        "name": "Exchange",
+        "description": "Exchanges one byte indirect between register and data space. The data location is pointed to by the Z (16 bits) Pointer Register in the Register File. Memory access is limited to the current data segment of 64KB. To access another data segment in devices with more than 64KB data space, the RAMPZ in register in the I/O area has to be changed. The Z-pointer Register is left unchanged by the operation. This instruction is especially suited for writing/ reading status bits stored in SRAM.",
         "operation": [
             "(Z) ← Rd",
             "Rd ← (Z)"
         ],
-        "type": "DT"
+        "type": "DT",
+        "syntax": "XCH Z,Rd",
+        "operands": {
+            "d": "0 ≤ d ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 001r rrrr 0100",
+        "error": true,
+        "words": 1,
+        "cycles": 2
     },
     {
         "mnemonic": "las",
@@ -2341,9 +2663,24 @@
     },
     {
         "mnemonic": "swap",
-        "description": "Swap Nibbles",
+        "name": "Swap Nibbles",
+        "description": "Swaps high and low nibbles in a register.",
         "operation": "Rd(3..0) ↔ Rd(7..4)",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "SWAP Rd",
+        "operands": {
+            "d": "0 ≤ d ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 010d dddd 0010",
+        "examples": [
+            "inc r1 ; Increment r1",
+            "swap r1 ; Swap high and low nibble of r1",
+            "inc r1 ; Increment high nibble of r1",
+            "swap r1 ; Swap back"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "sbi",
@@ -2496,10 +2833,23 @@
     },
     {
         "mnemonic": "sec",
-        "description": "Set Carry",
+        "name": "Set Carry",
+        "description": "Sets the Carry Flag (C) in SREG (Status Register).",
         "operation": "C ← 1",
         "flags": "C",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "SEC",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 0000 1000",
+        "status": {
+            "C": 1
+        },
+        "examples": [
+            "sec ; Set Carry Flag",
+            "adc r0,r1 ; r0=r0+r1+1"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "clc",
@@ -2523,10 +2873,23 @@
     },
     {
         "mnemonic": "sen",
-        "description": "Set Negative Flag",
+        "name": "Set Negative Flag",
+        "description": "Sets the Negative Flag (N) in SREG (Status Register)",
         "operation": "N ← 1",
         "flags": "N",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "SEN",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 0010 1000",
+        "status": {
+            "N": 1
+        },
+        "examples": [
+            "add r2,r19 ; Add r19 to r2",
+            "sen ; Set Negative Flag"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "cln",
@@ -2550,10 +2913,23 @@
     },
     {
         "mnemonic": "sez",
-        "description": "Set Zero Flag",
+        "name": "Set Zero Flag",
+        "description": "Sets the Zero Flag (Z) in SREG (Status Register).",
         "operation": "Z ← 1",
         "flags": "Z",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "SEZ",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 0001 1000",
+        "status": {
+            "Z": 1
+        },
+        "examples": [
+            "add r2,r19 ; Add r19 to r2",
+            "sez ; Set Zero Flag"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "clz",
@@ -2577,10 +2953,24 @@
     },
     {
         "mnemonic": "sei",
-        "description": "Global Interrupt Enable",
+        "name": "Global Interrupt Enable",
+        "description": "Sets the Global Interrupt Flag (I) in SREG (Status Register). The instruction following SEI will be executed before any pending interrupts.",
         "operation": "I ← 1",
         "flags": "I",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "SEI",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 0111 1000",
+        "status": {
+            "I": 1
+        },
+        "examples": [
+            "sei ; set global interrupt enable",
+            "sleep ; enter sleep, waiting for interrupt",
+            "; note: will enter sleep before any pending interrupt(s)"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "cli",
@@ -2607,10 +2997,21 @@
     },
     {
         "mnemonic": "ses",
-        "description": "Set Signed Test Flag",
+        "name": "Set Signed Test Flag",
+        "description": "Sets the Signed Flag (S) in SREG (Status Register).",
         "operation": "S ← 1",
         "flags": "S",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "SES",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 0100 1000",
+        "status": {
+            "S": 1
+        },
+        "examples": [
+            "add r2,r19 ; Add r19 to r2",
+            "ses ; Set Negative Flag"
+        ]
     },
     {
         "mnemonic": "cls",
@@ -2634,10 +3035,23 @@
     },
     {
         "mnemonic": "sev",
-        "description": "Set Two's Compliment Overflow",
+        "name": "Set Two's Compliment Overflow",
+        "description": "Sets the Overflow Flag (V) in SREG (Status Register).",
         "operation": "V ← 1",
         "flags": "V",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "SEV",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 0011 1000",
+        "status": {
+            "V": 1
+        },
+        "examples": [
+            "add r2,r19 ; Add r19 to r2",
+            "sev ; Set Overflow Flag"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "clv",
@@ -2661,10 +3075,20 @@
     },
     {
         "mnemonic": "set",
-        "description": "Set T in SREG",
+        "name": "Set T in SREG",
+        "description": "Sets the T Flag in SREG (Status Register).",
         "operation": "T ← 1",
         "flags": "T",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "SET",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 0110 1000",
+        "status": {
+            "T": 1
+        },
+        "examples": "set ; Set T Flag",
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "clt",
@@ -2685,10 +3109,20 @@
     },
     {
         "mnemonic": "seh",
-        "description": "Set Half Carry Flag in SREG",
+        "name": "Set Half Carry Flag in SREG",
+        "description": "Sets the Half Carry (H) in SREG (Status Register)",
         "operation": "H ← 1",
         "flags": "H",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "SEH",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0100 0101 1000",
+        "status": {
+            "H": 1
+        },
+        "examples": "seh ; Set Half Carry Flag",
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "clh",
@@ -2738,12 +3172,31 @@
     },
     {
         "mnemonic": "sleep",
-        "description": "Sleep",
-        "type": "MC"
+        "name": "Sleep",
+        "description": "This instruction sets the circuit in sleep mode defined by the MCU Control Register",
+        "type": "MC",
+        "syntax": "SLEEP",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0101 1000 1000",
+        "examples": [
+            "mov r0,r11 ; Copy r11 to r0",
+            "ldi r16,(1<<SE) ; Enable sleep mode",
+            "out MCUCR, r16",
+            "sleep ; Put MCU in sleep mode"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "wdr",
-        "description": "Watchdog Reset",
-        "type": "MC"
+        "name": "Watchdog Reset",
+        "description": "This instruction resets the Watchdog Timer. This instruction must be executed within a limited time given by the WD prescaler. See the Watchdog Timer hardware specification.",
+        "type": "MC",
+        "syntax": "WDR",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 0101 1010 1000",
+        "examples": "wdr ; Reset watchdog timer",
+        "words": 1,
+        "cycles": 1
     }
 ]
