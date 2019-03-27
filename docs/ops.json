@@ -93,17 +93,62 @@
     },
     {
         "mnemonic": "sbc",
-        "description": "Subtract with Carry",
+        "name": "Subtract with Carry",
+        "description": "Subtracts two registers and subtracts with the C Flag, and places the result in the destination register Rd.",
         "operation": "Rd ← Rd - Rr - C",
         "flags": "Z,C,N,V,S,H",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "SBC Rd,Rr",
+        "operands": {
+            "d": "0 ≤ d ≤ 31",
+            "r": "0 ≤ r ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0000 10rd dddd rrrr",
+        "status": {
+            "H": "!Rd3 • Rr3 + Rr3 • R3 + R3 • !Rd3",
+            "S": "N ⊕ V",
+            "V": "Rd7 • !Rr7 • !R7 + !Rd7 • Rr7 • R7",
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0 • Z",
+            "C": "!Rd7 • Rr7 + Rr7 • R7 + R7 • !Rd7"
+        },
+        "examples": [
+            "; Subtract r1:r0 from r3:r2",
+            "sub r2,r0 ; Subtract low byte",
+            "sbc r3,r1 ; Subtract with carry high byte"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "sbci",
-        "description": "Subtract Immediate with Carry",
+        "name": "Subtract Immediate with Carry",
+        "description": "Subtracts a constant from a register and subtracts with the C Flag, and places the result in the destination register Rd.",
         "operation": "Rd ← Rd - K - C",
         "flags": "Z,C,N,V,S,H",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "SBCI Rd,K",
+        "operands": {
+            "d": "16 ≤ d ≤ 31",
+            "K": "0 ≤ K ≤ 255"
+        },
+        "pCounter": "PC ← PC + 1",
+        "status": {
+            "H": "!Rd3 • K3 + K3 • R3 + R3 • !Rd3",
+            "S": "N ⊕ V",
+            "V": "Rd7 • !K7 • !R7 + !Rd7 • K7 • R7",
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0 • Z",
+            "C": "!Rd7 • K7 + K7 • R7 + R7 • !Rd7"
+        },
+        "examples": [
+            "; Subtract $4F23 from r17:r16",
+            "subi r16,$23 ; Subtract low byte",
+            "sbci r17,$4F ; Subtract with carry high byte"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "sbiw",
@@ -643,9 +688,26 @@
     },
     {
         "mnemonic": "rjmp",
-        "description": "Relative Jump",
+        "name": "Relative Jump",
+        "description": "Relative jump to an address within PC - 2K +1 and PC + 2K (words). For AVR microcontrollers with Program memory not exceeding 4K words (8KB) this instruction can address the entire memory from every address location. See also JMP",
         "operation": "PC ← PC + k + 1",
-        "type": "BR"
+        "type": "BR",
+        "syntax": "RJMP",
+        "operands": {
+            "k": "-2K ≤ k < 2K"
+        },
+        "pCounter": "PC ← PC + k + 1",
+        "opCode": "1100 kkkk kkkk kkkk",
+        "examples": [
+            "cpi r16,$42 ; Compare r16 to $42",
+            "brne error ; Branch if r16 <> $42",
+            "rjmp ok ; Unconditional branch",
+            "error: add r16,r17 ; Add r17 to r16",
+            "inc r16 ; Increment r16",
+            "ok: nop ; Destination for rjmp (do nothing)"
+        ],
+        "words": 1,
+        "cycles": 2
     },
     {
         "mnemonic": "ijmp",
@@ -711,9 +773,46 @@
     },
     {
         "mnemonic": "rcall",
-        "description": "Relative Call Subroutine",
+        "name": "Relative Call Subroutine",
+        "description": "Relative call to an address within PC - 2K + 1 and PC + 2K (words). The return address (the instruction after the RCALL) is stored onto the Stack. See also CALL. For AVR microcontrollers with Program memory not exceeding 4K words (8KB) this instruction can address the entire memory from every address location. The Stack Pointer uses a post-decrement scheme during RCALL.",
         "operation": "PC ← PC + k + 1",
-        "type": "BR"
+        "type": "BR",
+        "syntax": "RCALL k",
+        "operands": {
+            "k": "-2K ≤ k < 2K"
+        },
+        "pCounter": "PC ← PC + k + 1",
+        "stack": {
+            "16bit": [
+                "STACK ← PC + 1",
+                "SP ← SP - 2 (2 bytes,16 bits)"
+            ],
+            "22bit": [
+                "STACK ← PC + 1",
+                "SP ← SP - 3 (3 bytes, 22 bits)"
+            ]
+        },
+        "opCode": "1101 kkkk kkkk kkkk",
+        "examples": [
+            "rcall routine ; Call subroutine",
+            "...",
+            "routine: push r14 ; Save r14 on the Stack",
+            "...",
+            "pop r14 ; Restore r14",
+            "ret ; Return from subroutine"
+        ],
+        "words": 1,
+        "cycles": {
+            "0": {
+                "16bit": 3,
+                "22bit": 4
+            },
+            "x": {
+                "16Bit": 2,
+                "22bit": 3
+            },
+            "tiny": 4
+        }
     },
     {
         "mnemonic": "icall",
@@ -828,16 +927,68 @@
     },
     {
         "mnemonic": "ret",
-        "description": "Subroutine Return",
+        "name": "Subroutine Return",
+        "description": "Returns from subroutine. The return address is loaded from the STACK. The Stack Pointer uses a preincrement scheme during RET.",
         "operation": "PC ← STACK",
-        "type": "BR"
+        "type": "BR",
+        "syntax": "RET",
+        "pCounter": {
+            "15bit": "PC(15:0) ← STACK",
+            "22bit": "PC(21:0) ← STACK"
+        },
+        "stack": {
+            "16bit": "SP ← SP + 2, (2 bytes, 16 bits)",
+            "22bit": "SP ← SP + 3, (3 bytes, 22 bits)"
+        },
+        "opCode": "1001 0101 0000 1000",
+        "examples": [
+            "call routine ; Call subroutine",
+            "...",
+            "routine: push r14 ; Save r14 on the Stack",
+            "...",
+            "pop r14 ; Restore r14",
+            "ret ; Return from subroutine"
+        ],
+        "words": 1,
+        "cycles": {
+            "16bit": 4,
+            "22bit": 5
+        }
     },
     {
         "mnemonic": "reti",
-        "description": "Interrupt Return",
-        "operation": "PC ← STACK",
+        "name": "Interrupt Return",
+        "description": "Returns from interrupt. The return address is loaded from the STACK and the Global Interrupt Flag is set. Note that the Status Register is not automatically stored when entering an interrupt routine, and it is not restored when returning from an interrupt routine. This must be handled by the application program. The Stack Pointer uses a pre-increment scheme during RETI.",
+        "operation": {
+            "16bit": "PC(15:0) ← STACK",
+            "22bit": "PC(21:0) ← STACK"
+        },
         "flags": "I",
-        "type": "BR"
+        "type": "BR",
+        "syntax": "RETI",
+        "stack": {
+            "15bit": "SP ← SP + 2 (2 bytes, 16 bits)",
+            "22bit": "SP ← SP + 3 (3 bytes, 22 bits)"
+        },
+        "opCode": "1001 0101 0001 1000",
+        "status": {
+            "I": 1
+        },
+        "examples": [
+            "...",
+            "extint: push r0 ; Save r0 on the Stack",
+            "...",
+            "pop r0 ; Restore r0",
+            "reti ; Return and enable interrupts"
+        ],
+        "words": 1,
+        "cycles": {
+            "16bit": 4,
+            "22bit": 5
+        },
+        "notes": [
+            " RETI behaves differently in megaAVR and AVR XMEGA devices. In the megaAVR series of devices, the global interrupt flag is cleared by hardware once an interrupt occurs and this bit is set when RETI is executed. In the AVR XMEGA devices, RETI will not modify the global interrupt flag in SREG since it is not cleared by hardware while entering ISR. This bit should be modified using SEI and CLI instructions when needed."
+        ]
     },
     {
         "mnemonic": "cpse",
@@ -2087,25 +2238,77 @@
     },
     {
         "mnemonic": "rol",
-        "description": "Rotate Left Through Carry",
+        "name": "Rotate Left Through Carry",
+        "description": "Shifts all bits in Rd one place to the left. The C Flag is shifted into bit 0 of Rd. Bit 7 is shifted into the C Flag. This operation, combined with LSL, effectively multiplies multi-byte signed and unsigned values by two",
         "operation": [
             "Rd(0) ← C",
             "Rd(n+1) ← Rd(n)",
             "C ← Rd(7)"
         ],
         "flags": "Z,C,N,V,H",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "ROL Rd",
+        "operands": {
+            "d": "0 ≤ d ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0001 11dd dddd dddd",
+        "status": {
+            "H": "Rd3",
+            "S": "N ⊕ V",
+            "V": "N ⊕ C",
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0",
+            "C": "Rd7"
+        },
+        "examples": [
+            "lsl r18 ; Multiply r19:r18 by two",
+            "rol r19 ; r19:r18 is a signed or unsigned two-byte integer",
+            "brcs oneenc ; Branch if carry set",
+            "...",
+            "oneenc: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "ror",
-        "description": "Rotate Right Through Carry",
+        "name": "Rotate Right Through Carry",
+        "description": "Shifts all bits in Rd one place to the right. The C Flag is shifted into bit 7 of Rd. Bit 0 is shifted into the C Flag. This operation, combined with ASR, effectively divides multi-byte signed values by two. Combined with LSR it effectively divides multi-byte unsigned values by two. The Carry Flag can be used to round the result.",
         "operation": [
             "Rd(7) ← C",
             "Rd(n) ← Rd(n+1)",
             "C ← Rd(0)"
         ],
         "flags": "Z,C,N,V",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "ROR Rd",
+        "operands": {
+            "d": "0 ≤ d ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 010d dddd 0111",
+        "status": {
+            "S": "N ⊕ V",
+            "V": "N ⊕ C",
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0",
+            "C": "Rd0"
+        },
+        "examples": [
+            "lsr r19 ; Divide r19:r18 by two",
+            "ror r18 ; r19:r18 is an unsigned two-byte integer",
+            "brcc zeroenc1 ; Branch if carry cleared",
+            "asr r17 ; Divide r17:r16 by two",
+            "ror r16 ; r17:r16 is a signed two-byte integer",
+            "brcc zeroenc2 ; Branch if carry cleared",
+            "...",
+            "zeroenc1: nop ; Branch destination (do nothing)",
+            "...",
+            "zeroenc1: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "asr",
@@ -2144,9 +2347,28 @@
     },
     {
         "mnemonic": "sbi",
-        "description": "Set Bit in I/O Register",
+        "name": "Set Bit in I/O Register",
+        "description": "Sets a specified bit in an I/O Register. This instruction operates on the lower 32 I/O Registers – addresses 0-31.",
         "operation": "I/O(A, b) ← 1",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "SBI A,b",
+        "operands": {
+            "A": "0 ≤ A ≤ 31",
+            "b": "0 ≤ b ≤ 7"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 1010 AAAA Abbb",
+        "examples": [
+            "out $1E,r0 ; Write EEPROM address",
+            "sbi $1C,0 ; Set read bit in EECR",
+            "in r1,$1D ; Read EEPROM data"
+        ],
+        "words": 1,
+        "cycles": {
+            "0": 2,
+            "x": 1,
+            "tiny": 1
+        }
     },
     {
         "mnemonic": "cbi",
