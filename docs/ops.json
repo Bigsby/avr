@@ -169,17 +169,61 @@
     },
     {
         "mnemonic": "or",
-        "description": "Logical OR",
+        "name": "Logical OR",
+        ,
+        "description": "Performs the logical OR between the contents of register Rd and register Rr, and places the result in the destination register Rd.",
         "operation": "Rd ← Rd v Rr",
         "flags": "Z,N,V,S",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "OR Rd,Rr",
+        "operands": {
+            "d": "0 ≤ d ≤ 31",
+            "r": "0 ≤ r ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0010 10rd dddd rrrr",
+        "status": {
+            "S": "N ⊕ V",
+            "V": 0,
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0"
+        },
+        "examples": [
+            "or r15,r16 ; Do bitwise or between registers",
+            "bst r15,6 ; Store bit 6 of r15 in T Flag",
+            "brts ok ; Branch if T Flag set",
+            "...",
+            "ok: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "ori",
-        "description": "Logical OR with Immediate",
+        "name": "Logical OR with Immediate",
+        "description": "Performs the logical OR between the contents of register Rd and a constant, and places the result in the destination register Rd.",
         "operation": "Rd v K",
         "flags": "Z,N,V,S",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "ORI Rd,K",
+        "operands": {
+            "d": "16 ≤ d ≤ 31",
+            "K": "0 ≤ K ≤ 255"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0110 KKKK dddd KKKK",
+        "status": {
+            "S": "N ⊕ V",
+            "V": 0,
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0"
+        },
+        "examples": [
+            "ori r16,$F0 ; Set high nibble of r16",
+            "ori r17,1 ; Set bit 0 of r17"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "eor",
@@ -238,10 +282,33 @@
     },
     {
         "mnemonic": "neg",
-        "description": "Two’s Complement",
+        "name": "Two’s Complement",
+        "description": "Replaces the contents of register Rd with its two’s complement; the value $80 is left unchanged.",
         "operation": "Rd ← $00 - Rd",
         "flags": "Z,C,N,V,S,H",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "NEG Rd",
+        "operands": {
+            "d": "0 ≤ d ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 010d dddd 0001",
+        "status": {
+            "H": "Ρ3 + !Rd3",
+            "S": "N ⊕ V",
+            "V": "R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0",
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0",
+            "C": "R7 + R6 + R5 + R4 + R3 + R2 + R1 + R0"
+        },
+        "examples": [
+            "sub r11,r0 ; Subtract r0 from r11",
+            "brpl positive ; Branch if result positive",
+            "neg r11 ; Take two’s complement of r11 ",
+            "positive: nop ; Branch destination (do nothing)"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "sbr",
@@ -380,24 +447,102 @@
     },
     {
         "mnemonic": "mul",
-        "description": "Multiply Unsigned",
+        "name": "Multiply Unsigned",
+        "description": "This instruction performs 8-bit × 8-bit → 16-bit unsigned multiplication. The multiplicand Rd and the multiplier Rr are two registers containing unsigned numbers. The 16-bit unsigned product is placed in R1 (high byte) and R0 (low byte). Note that if the multiplicand or the multiplier is selected from R0 or R1 the result will overwrite those after multiplication. This instruction is not available in all devices.",
         "operation": "R1:R0 ← Rd x Rr (UU)",
         "flags": "Z,C",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "MUL Rd,Rr",
+        "operands": {
+            "d": "0 ≤ d ≤ 31",
+            "r": "0 ≤ r ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 11rd dddd rrrr",
+        "status": {
+            "C": "R15",
+            "Z": "!R15 • !R14 • !R13 • !R12 • !R11 • !R10 • !R9 • !R8R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0"
+        },
+        "examples": [
+            "mul r5,r4 ; Multiply unsigned r5 and r4",
+            "mov w r4,r0 ; Copy result back in r5:r4"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "muls",
-        "description": "Multiply Signed",
+        "name": "Multiply Signed",
+        "description": "This instruction performs 8-bit × 8-bit → 16-bit signed multiplication. The multiplicand Rd and the multiplier Rr are two registers containing signed numbers. The 16-bit signed product is placed in R1 (high byte) and R0 (low byte). This instruction is not available in all devices.",
         "operation": "R1:R0 ← Rd x Rr (SS)",
         "flags": "Z,C",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "MULS Rd,Rr",
+        "operands": {
+            "d": "16 ≤ d ≤ 31",
+            "r": "16 ≤ d ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0000 0010 dddd rrrr",
+        "status": {
+            "C": "R15",
+            "Z": "!R15 • !R14 • !R13 • !R12 • !R11 • !R10 • !R9 • !R8R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0"
+        },
+        "examples": [
+            "muls r21,r20 ; Multiply signed r21 and r20",
+            "mov w r20,r0 ; Copy result back in r21:r20"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "mulsu",
-        "description": "Multiply Signed with Unsigned",
+        "name": "Multiply Signed with Unsigned",
+        "description": "This instruction performs 8-bit × 8-bit → 16-bit multiplication of a signed and an unsigned number. The multiplicand Rd and the multiplier Rr are two registers. The multiplicand Rd is a signed number, and the multiplier Rr is unsigned. The 16-bit signed product is placed in R1 (high byte) and R0 (low byte). This instruction is not available in all devices.",
         "operation": "R1:R0 ← Rd x Rr (SU)",
         "flags": "Z,C",
-        "type": "AL"
+        "type": "AL",
+        "syntax": "MULSU Rd,Rr",
+        "operands": {
+            "d": "16 ≤ d ≤ 31",
+            "r": "16 ≤ d ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0000 0011 0ddd 0rrr",
+        "status": {
+            "C": "R15",
+            "Z": "!R15 • !R14 • !R13 • !R12 • !R11 • !R10 • !R9 • !R8R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0"
+        },
+        "examples": [
+            ";******************************************************************************",
+            ";* DESCRIPTION",
+            ";* Signed multiply of two 16-bit numbers with 32-bit result.",
+            ";* USAGE",
+            ";* r19:r18:r17:r16 = r23:r22 * r21:r20",
+            ";******************************************************************************",
+            "muls16x16_32:",
+            " clr r2",
+            " muls r23, r21 ; (signed)ah * (signed)bh",
+            " movw r19:r18, r1:r0",
+            " mul r22, r20 ; al * bl",
+            " movw r17:r16, r1:r0",
+            " mulsu r23, r20 ; (signed)ah * bl",
+            "Atmel AVR Instruction Set Manual [OTHER]",
+            "Atmel-0856L-AVR-Instruction-Set-Manual_Other-11/2016",
+            "127",
+            " sbc r19, r2",
+            " add r17, r0",
+            " adc r18, r1",
+            " adc r19, r2",
+            " mulsu r21, r22 ; (signed)bh * al",
+            " sbc r19, r2",
+            " add r17, r0",
+            " adc r18, r1",
+            " adc r19, r2",
+            " ret"
+        ],
+        "words": 1,
+        "cycles": 2
     },
     {
         "mnemonic": "fmul",
@@ -1735,21 +1880,81 @@
     },
     {
         "mnemonic": "out",
-        "description": "Out To I/O Location",
+        "name": "Out To I/O Location",
+        "description": "Stores data from register Rr in the Register File to I/O Space (Ports, Timers, Configuration Registers, etc.).",
         "operation": "I/O(A) ← Rr",
-        "type": "DT"
+        "type": "DT",
+        "syntax": "OUT A,Rr",
+        "operands": {
+            "r": "0 ≤ r ≤ 31",
+            "A": "0 ≤ A ≤ 63"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1011 1AAr rrrr AAAA",
+        "examples": [
+            "clr r16 ; Clear r16",
+            "ser r17 ; Set r17",
+            "out $18,r16 ; Write zeros to Port B",
+            "nop ; Wait (do nothing)",
+            "out $18,r17 ; Write ones to Port B"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "push",
-        "description": "Push Register on Stack",
+        "name": "Push Register on Stack",
+        "description": "This instruction stores the contents of register Rr on the STACK. The Stack Pointer is post-decremented by 1 after the PUSH. This instruction is not available in all devices.",
         "operation": "STACK ← Rr",
-        "type": "DT"
+        "type": "DT",
+        "syntax": "PUSH Rr",
+        "operands": {
+            "r": "0 ≤ r ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "stack": "SP ← SP - 1",
+        "opCode": "1001 001d dddd 1111",
+        "examples": [
+            "call routine ; Call subroutine",
+            "...",
+            "routine: push r14 ; Save r14 on the Stack",
+            "push r13 ; Save r13 on the Stack",
+            "...",
+            "pop r13 ; Restore r13",
+            "pop r14 ; Restore r14",
+            "ret ; Return from subroutine"
+        ],
+        "words": 1,
+        "cycles": {
+            "0": 2,
+            "x": 1
+        }
     },
     {
         "mnemonic": "pop",
-        "description": "Pop Register from Stack",
+        "name": "Pop Register from Stack",
+        "description": "This instruction loads register Rd with a byte from the STACK. The Stack Pointer is pre-incremented by 1 before the POP. This instruction is not available in all devices.",
         "operation": "Rd ← STACK",
-        "type": "DT"
+        "type": "DT",
+        "syntax": "POP Rd",
+        "operands": {
+            "d": "0 ≤ d ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "stack": "SP ← SP + 1",
+        "opCode": "1001 000d dddd 1111",
+        "examples": [
+            "call routine ; Call subroutine",
+            "...",
+            "routine: push r14 ; Save r14 on the Stack",
+            "push r13 ; Save r13 on the Stack",
+            "...",
+            "pop r13 ; Restore r13",
+            "pop r14 ; Restore r14",
+            "ret ; Return from subroutine"
+        ],
+        "words": 1,
+        "cycles": 2
     },
     {
         "mnemonic": "xch",
@@ -2293,8 +2498,21 @@
     },
     {
         "mnemonic": "nop",
-        "description": "No Operation",
-        "type": "MC"
+        "name": "No Operation",
+        "description": "This instruction performs a single cycle No Operation.",
+        "type": "MC",
+        "syntax": "NOP",
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0000 0000 0000 0000",
+        "examples": [
+            "clr r16 ; Clear r16",
+            "ser r17 ; Set r17",
+            "out $18,r16 ; Write zeros to Port B",
+            "nop ; Wait (do nothing)",
+            "out $18,r17 ; Write ones to Port B"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "sleep",
