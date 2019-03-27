@@ -284,7 +284,6 @@
     {
         "mnemonic": "or",
         "name": "Logical OR",
-        ,
         "description": "Performs the logical OR between the contents of register Rd and register Rr, and places the result in the destination register Rd.",
         "operation": "Rd ← Rd v Rr",
         "flags": "Z,N,V,S",
@@ -2305,7 +2304,7 @@
             "(RAMPZ:Z) ← R1:R0",
             "Z ← Z + 2"
         ],
-        ,
+        "pCounter": "PC ← PC + 1",
         "incomplete": true,
         "type": "DT",
         "notes": [
