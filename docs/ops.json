@@ -1307,27 +1307,104 @@
     },
     {
         "mnemonic": "mov",
-        "description": "Copy Register",
+        "name": "Copy Register",
+        "description": "This instruction makes a copy of one register into another. The source register Rr is left unchanged, while the destination register Rd is loaded with a copy of Rr.",
         "operation": "Rd ← Rr",
-        "type": "DT"
+        "type": "DT",
+        "syntax": "MOV Rd,Rr",
+        "operands": {
+            "d": "0 ≤ d ≤ 31",
+            "r": "0 ≤ r ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0010 11rd dddd rrrr",
+        "examples": [
+            "mov r16,r0 ; Copy r0 to r16",
+            "call check ; Call subroutine",
+            "...",
+            "check: cpi r16,$11 ; Compare r16 to $11",
+            "...",
+            "ret ; Return from subroutine"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "movw",
-        "description": "Copy Register Pair",
+        "name": "Copy Register Pair",
+        "description": "This instruction makes a copy of one register pair into another register pair. The source register pair Rr +1:Rr is left unchanged, while the destination register pair Rd+1:Rd is loaded with a copy of Rr + 1:Rr. This instruction is not available in all devices.",
         "operation": "Rd+1:Rd ← Rr+1:Rr",
-        "type": "DT"
+        "type": "DT",
+        "syntax": "MOVW Rd+1:Rd,Rr+1:Rr",
+        "operands": {
+            "d": "d ∈ {0,2,...,30}",
+            "r": "r ∈ {0,2,...,30}"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "0000 0001 dddd rrrr",
+        "examples": [
+            "mov w r17:16,r1:r0 ; Copy r1:r0 to r17:r16",
+            "call check ; Call subroutine",
+            "...",
+            "check: cpi r16,$11 ; Compare r16 to $11",
+            "...",
+            "cpi r17,$32 ; Compare r17 to $32",
+            "...",
+            "ret ; Return from subroutine"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "ldi",
-        "description": "Load Immediate",
+        "name": "Load Immediate",
+        "description": "Loads an 8-bit constant directly to register 16 to 31.",
         "operation": "Rd ← K",
-        "type": "DT"
+        "type": "DT",
+        "syntax": "LDI Rd,K",
+        "operands": {
+            "d": "16 ≤ d ≤ 31",
+            "K": "0 ≤ K ≤ 255"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1110 KKKK dddd KKKK",
+        "examples": [
+            "clr r31 ; Clear Z high byte",
+            "ldi r30,$F0 ; Set Z low byte to $F0",
+            "lpm ; Load constant from Program",
+            "; memory pointed to by Z"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "lds",
-        "description": "Load Direct from data space",
+        "name": "Load Direct from data space",
+        "description": "Loads one byte from the data space to a register. For parts with SRAM, the data space consists of the Register File, I/O memory, and internal SRAM (and external SRAM if applicable). For parts without SRAM, the data space consists of the register file only. The EEPROM has a separate address space. A 16-bit address must be supplied. Memory access is limited to the current data segment of 64KB. The LDS instruction uses the RAMPD Register to access memory above 64KB. To access another data segment in devices with more than 64KB data space, the RAMPD in register in the I/O area has to be changed. This instruction is not available in all devices.",
         "operation": "Rd ← (k)",
-        "type": "DT"
+        "type": "DT",
+        "syntax": "LDS Rd,k",
+        "operands": {
+            "d": "0 ≤ d ≤ 31",
+            "k": "0 ≤ k ≤ 65535"
+        },
+        "pCounter": "PC ← PC + 2",
+        "opCode": [
+            "1001 000d dddd 0000",
+            "kkkk kkkk kkkk kkkk"
+        ],
+        "examples": [
+            "lds r2,$FF00 ; Load r2 with the contents of data space location $FF00",
+            "add r2,r1 ; add r1 to r2",
+            "sts $FF00,r2 ; Write back"
+        ],
+        "words": 2,
+        "cycles": {
+            "0": 2,
+            "x": 2
+        },
+        "notes": "Cycles XMEGA. If the LDS instruction is accessing internal SRAM, one extra cycle is inserted",
+        "incomplete": true
     },
     {
         "mnemonic": "ld",
@@ -1527,15 +1604,31 @@
     },
     {
         "mnemonic": "lpm",
-        "description": "Load Program Memory",
+        "name": "Load Program Memory",
+        "description": "Loads one byte pointed to by the Z-register into the destination register Rd. This instruction features a 100% space effective constant initialization or constant data fetch. The Program memory is organized in 16-bit words while the Z-pointer is a byte address. Thus, the least significant bit of the Z-pointer selects either low byte (ZLSB = 0) or high byte (ZLSB = 1). This instruction can address the first 64KB (32K words) of Program memory. The Z-pointer Register can either be left unchanged by the operation, or it can be incremented. The incrementation does not apply to the RAMPZ Register. Devices with Self-Programming capability can use the LPM instruction to read the Fuse and Lock bit values. Refer to the device documentation for a detailed description. The LPM instruction is not available in all devices",
         "operation": "R0 ← (Z)",
-        "type": "DT"
+        "type": "DT",
+        "notes": [
+            "The result of these combinations is undefined:",
+            "LPM r30, Z+",
+            "LPM r31, Z+"
+        ],
+        "syntax": "LPM",
+        "opCode": "1001 0101 1100 1000",
+        "words": 1,
+        "cycles": 3,
+        "incomplete": true
     },
     {
         "mnemonic": "lpm",
         "description": "Load Program Memory",
         "operation": "Rd ← (Z)",
-        "type": "DT"
+        "type": "DT",
+        "syntax": "LPM Rd, Z",
+        "opCode": "1001 000d dddd 0100",
+        "words": 1,
+        "cycles": 3,
+        "incomplete": true
     },
     {
         "mnemonic": "lpm",
@@ -1544,7 +1637,12 @@
             "Rd ← (Z)",
             "Z ← Z + 1"
         ],
-        "type": "DT"
+        "type": "DT",
+        "syntax": "LPM Rd, Z+",
+        "opCode": "1001 000d dddd 0101",
+        "words": 1,
+        "cycles": 3,
+        "incomplete": true
     },
     {
         "mnemonic": "elpm",
@@ -1721,25 +1819,66 @@
     },
     {
         "mnemonic": "lsl",
-        "description": "Logical Shift Left",
+        "name": "Logical Shift Left",
+        "description": "Shifts all bits in Rd one place to the left. Bit 0 is cleared. Bit 7 is loaded into the C Flag of the SREG. This operation effectively multiplies signed and unsigned values by two",
         "operation": [
             "Rd(n+1) ← Rd(n)",
             "Rd(0) ← 0",
             "C ← Rd(7)"
         ],
+        "pCounter": "PC ← PC + 1",
         "flags": "Z,C,N,V,H",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "LSL Rd",
+        "operands": {
+            "d": "0 ≤ d ≤ 31"
+        },
+        "opCode": "0000 11dd dddd dddd",
+        "status": {
+            "H": "Rd3",
+            "S": "N ⊕ V",
+            "V": "N ⊕ C",
+            "N": "R7",
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0",
+            "C": "Rd7"
+        },
+        "examples": [
+            "add r0,r4 ; Add r4 to r0",
+            "lsl r0 ; Multiply r0 by 2"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "lsr",
-        "description": "Logical Shift Right",
+        "name": "Logical Shift Right",
+        "description": "Shifts all bits in Rd one place to the right. Bit 7 is cleared. Bit 0 is loaded into the C Flag of the SREG. This operation effectively divides an unsigned value by two. The C Flag can be used to round the result.",
         "operation": [
             "Rd(n) ← Rd(n+1)",
             "Rd(7) ← 0",
             "C ← Rd(0)"
         ],
         "flags": "Z,C,N,V",
-        "type": "BT"
+        "type": "BT",
+        "syntax": "LSR Rd",
+        "operands": {
+            "d": "0 ≤ d ≤ 31"
+        },
+        "pCounter": "PC ← PC + 1",
+        "opCode": "1001 010d dddd 0110",
+        "status": {
+            "S": "N ⊕ V",
+            "V": "N ⊕ C",
+            "N": 0,
+            "Z": "!R7 • !R6 • !R5 • !R4 • !R3 • !R2 • !R1 • !R0",
+            "C": "Rd0"
+        },
+        "examples": [
+            "add r0,r4 ; Add r4 to r0",
+            "lsr r0 ; Divide r0 by 2"
+        ],
+        "words": 1,
+        "cycles": 1
     },
     {
         "mnemonic": "rol",
