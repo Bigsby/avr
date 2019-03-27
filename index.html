@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>AVR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="http://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div id="display">
+        <table>
+            <thead>
+                <tr>
+                    <th>opCode</th>
+                    <th>type</th>
+                    <th>syntax</th>
+                    <th>name</th>
+                </tr>
+            </thead>
+            <tbody style="font-family: monospace">
+
+            </tbody>
+        </table>
+    </div>
+    <script>
+        function firstWord(op) {
+            if (op.opCode) {
+                if (Array.isArray(op.opCode)) {
+                    return op.opCode[0];
+                }
+                return op.opCode;
+            }
+            return null;
+        }
+        $(() => {
+            $.get("docs/ops.json", ops => {
+                let resultHtml = "";
+                ops.sort((op1, op2) => firstWord(op1) > firstWord(op2) ? 1 : -1);
+                ops.forEach(op => {
+                    if (firstWord(op)) {
+                        resultHtml += "<tr>";
+                        resultHtml += `<td>${op.opCode}</td>`;
+                        resultHtml += `<td>${op.type}</td>`;
+                        resultHtml += `<td>${op.syntax}</td>`;
+                        resultHtml += `<td>${op.name}</td>`;
+                        resultHtml += "</tr>";
+                    }
+                });
+                $("div#display table tbody").html(resultHtml);
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -45,3 +45,6 @@ X,Y,Z: Indirect Address Register (X=R27:R26, Y=R29:R28, and
 Z=R31:R30)
 A: I/O location address
 q: Displacement for direct addressing (6-bit)
+
+#HTML Page
+python -m SimpleHTTPServer
