@@ -23,12 +23,14 @@ function addOperand(operandName, restriction) {
     if (!operand) {
         operand = {
             name: operandName,
-            restrictions: []
+            restrictions: {
+
+            }
         }
         operands.push(operand);
     }
-    if (!operand.restrictions.includes(restriction)) {
-        operand.restrictions.push(restriction);
+    if (!operand.restrictions[restriction]) {
+        operand.restrictions[restriction] = [];
     }
     return operand;
 }
@@ -85,14 +87,28 @@ function getPositionsInOperation(operand, op) {
 ops.forEach(op => {
     if (op.operands) {
         for (const operandName in op.operands) {
-            const operand = addOperand(operandName, op.operands[operandName]);
+            const restriction = op.operands[operandName];
+            const operand = addOperand(operandName, restriction);
             getPositionsInOperation(operand, op);
         }
     }
 });
 
+function indexesDisplay(indexes) {
+    let result = "";
+    for (let index = 0; index < 16; index++) {
+        if (indexes.includes(index)) {
+            result += " \x1b[0m" + index;
+        } else {
+            result += " \x1b[2m" + index;
+        }
+    }
+    result += "\x1b[0m";
+    return result;
+}
+
 operands.forEach(operand => {
     console.log(`${operand.name}: ${operand.restrictions}`);
-    operand.indexes.forEach(index => console.log(`  ${index}`));
+    operand.indexes.forEach(index => console.log(`  ${indexesDisplay(index)}`));
     console.log();
 });

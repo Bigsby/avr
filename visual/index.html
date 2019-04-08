@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
+    <style>
+        div.byteContainer {
+            display: flex;
+            flex-direction: row;
+            font-family: monospace;
+        }
+
+        div.bitContainer {
+            display: flex;
+            flex-direction: row;
+        }
+
+        div.wrapped {
+            border: 1px solid black;
+            display: table;
+            padding: 2px;
+            margin: 2px;
+        }
+
+        div.wrapped span.title {
+            text-align: center;
+            font-weight: bold;
+            width: 100%;
+            display: inline-block;
+            border-bottom: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        {{ message }}
+        <ul>
+            <bus :value="bus_value"></bus>
+            <alu :target_operand="alu.target_operand" :source_operand="alu.source_operand"></alu>
+            <instruction :op_code="op_code"></instruction>
+            <ram :address="ram_address"></ram>
+            <register v-for="register in registers" :value="register.value || 0" :index="register.index"></register>
+        </ul>
+
+    </div>
+    <script>
+        const registerCount = 32;
+        const busWidth = 8;
+        const ram_size = 16;
+        const op_code_size = 16;
+
+        Vue.component("bus", {
+            template: `
+                <boxed-component title="Bus" color="yellow">
+                    <byte :value="value"></byte>
+                </boxed-component>        
+            `,
+            props: ["value"],
+        });
+
+        Vue.component("instruction", {
+            template: `
+            <boxed-component title="Instruction" color="lightpink">
+                <boxed-component title="Higher" color="lightgreen">
+                    <byte :value="op_code >> 8"></byte>
+                </boxed-component>
+                <boxed-component title="Lower" color="lightred">
+                    <byte :value="op_code & 0xff"></byte>
+                </boxed-component>
+            </boxed-component>
+            `,
+            props: ["op_code"],
+            watch: {
+                address: function (newAddress) {
+                    this.value = 0;
+                }
+            }
+        });
+
+        Vue.component("ram", {
+            template: `
+            <boxed-component title="RAM" color="lightpink">
+                <boxed-component title="Address" color="lightgreen">
+                    <byte :value="address"></byte>
+                </boxed-component>
+                <boxed-component title="Value" color="lightred">
+                    <byte :value="value || 0"></byte>
+                </boxed-component>
+            </boxed-component>
+            `,
+            props: ["address", "value"],
+            watch: {
+                address: function (newAddress) {
+                    this.value = 0;
+                }
+            }
+        });
+
+        Vue.component("register", {
+            template: `
+            <boxed-component :title="'R' + index" color="lightblue">
+                <byte :value="value"></byte>
+            </boxed-component>
+            `,
+            props: ["value", "index", "in", "out"]
+        });
+
+        Vue.component("boxed-component", {
+            template: `
+                <div class="wrapped">
+                    <span class="title" :style="{ background: color }">{{title}}</span>
+                    <slot></slot>
+                </div>
+            `,
+            props: ["title", "color"]
+        });
+        Vue.component("byte", {
+            template: `
+                <div class="byteContainer">
+                    <div class="bitContainer">
+                        <div v-for="bit in busWidth()">{{bitValue(bit,value)}}</div>
+                    </div>
+                    - {{toHexString(value)}}
+                </div>`,
+            props: ["value"],
+            methods: {
+                toHexString: function (value) {
+                    let str = value.toString(16).toUpperCase();;
+                    return "0".repeat((busWidth / 4) - str.length) + str;
+                },
+                bitValue: function (bit, value) {
+                    return Math.pow(2, busWidth - bit) & value ? 1 : 0;
+                },
+                busWidth: function() {
+                    return busWidth;
+                }
+            }
+        });
+
+        Vue.component("alu", {
+            template: `
+            <boxed-component title="ALU" color="lightgrey">
+                <boxed-component title="Target" color="lightgreen">
+                    <byte :value="target_operand"></byte>
+                </boxed-component>
+                <boxed-component title="Source" color="lightred">
+                    <byte :value="source_operand"></byte>
+                </boxed-component>
+            </boxed-component>
+            `,
+            props: ["target_operand", "source_operand"]
+        });
+
+        let registers = [];
+        for (let registerIndex = 0; registerIndex < registerCount; registerIndex++) {
+            registers.push({
+                index: registerIndex,
+                value: registerIndex
+            });
+        }
+
+        let app = new Vue({
+            el: "div#app",
+            data: {
+                message: "This is the message!",
+                alu: {
+                    bus_width: busWidth,
+                    target_operand: 5 | 1,
+                    source_operand: 255
+                },
+                registers: registers,
+                bus_value: 2,
+                ram_address: 0,
+                op_code: 0xba4
+            },
+        });
+    </script>
+</body>
+
+</html>
