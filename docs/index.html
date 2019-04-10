@@ -107,9 +107,7 @@
 
         const EVENTS = {
             CLOCK_HIGH: "CLOCK_HIGH",
-            CLOCK_LOW: "CLOCK_LOW",
-            PROGRAM_COUNTER_CHANGED: "PROGRAM_COUNTER_CHANGED",
-            OPCODE_CHANGE: "OPCODE_CHANGE"
+            CLOCK_LOW: "CLOCK_LOW"
         };
         const CONTROL = {
             INSTRUCTION_OUT: 1 << 0,
@@ -120,6 +118,7 @@
             ALU_OUT: 1 << 5,
             RAM_OUT: 1 << 6,
             RAM_IN: 1 << 7,
+            PROGRAM_COUNTER_ENABLED: 1 << 8
         };
 
         let registers = [];
@@ -133,17 +132,15 @@
         let eventBus = new Vue({
             data() {
                 return {
-                    status: 0,
-                    control: {
-                        isSet(bit) {
-                            return this.status & bit === bit;
-                        },
-                        set(bit) {
-                            this.status != bit;
-                        },
-                        clear(bit) {
-                            this.status ^= bit;
-                        }
+                    status: 0 | CONTROL.PROGRAM_COUNTER_ENABLED,
+                    isSet(bit) {
+                        return this.status & bit === bit;
+                    },
+                    set(bit) {
+                        this.status != bit;
+                    },
+                    clear(bit) {
+                        this.status ^= bit;
                     }
                 };
             }
@@ -170,7 +167,7 @@
             ram_address: 0,
             flash_address: 0,
             eeprom_addres: 0,
-            op_code: 0xba4
+            op_code: 0
         };
 
         Vue.component("bus", {
@@ -201,10 +198,10 @@
             },
             props: ["value", "in", "out"],
             created() {
-                //this.innerValue = this.value || 0;
                 this.eventBus.$on(EVENTS.CLOCK_HIGH, function () {
-                    this.innerValue++;
-                    this.eventBus.$emit(EVENTS.PROGRAM_COUNTER_CHANGED, this.innerValue);
+                    if (this.eventBus.isSet(CONTROL.PROGRAM_COUNTER_ENABLED)) {
+                        this.innerValue++;
+                    }
                 }.bind(this));
             }
         });
@@ -292,9 +289,10 @@
                 };
             },
             created() {
-                this.eventBus.$on(EVENTS.OPCODE_CHANGE, values => {
-                    this.higher = values[0];
-                    this.lower = values[1];
+                this.eventBus.$on(EVENTS.CLOCK_HIGH, _ => {
+                    // if ()
+                    // this.higher = values[0];
+                    // this.lower = values[1];
                 });
             },
             props: ["op_code", "in"]
@@ -350,8 +348,8 @@
                 };
             },
             created() {
-                this.eventBus.$on(EVENTS.PROGRAM_COUNTER_CHANGED, instructionAddress => {
-                    this.address = instructionAddress;
+                this.eventBus.$on(EVENTS.CLOCK_HIGH, _ => {
+                    // this.address = instructionAddress;
                 });
             }
         });
