@@ -8,7 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
     <style>
-        html, body {
+        html,
+        body {
             width: 100%;
             height: 100%;
             padding: 0;
@@ -40,6 +41,13 @@
             display: inline-block;
             border-bottom: 1px solid black;
         }
+
+        .registers-container {
+            /* max-height: 200px; */
+            width: 604px;
+            display: flex;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 
@@ -47,24 +55,27 @@
     <div id="app">
         <h1>AVR CPU</h1>
         <div>
+            <clock></clock>
             <bus :value="bus_value"></bus>
             <program-counter></program-counter>
+            <memory name="Flash" :address="flash_address"></memory>
             <alu :target_operand="alu.target_operand" :source_operand="alu.source_operand"></alu>
             <instruction :op_code="op_code"></instruction>
-            <ram :address="ram_address"></ram>
-            <boxed-component title="Registers" color="skyblue">
+            <memory name="RAM" :address="ram_address"></memory>
+            <boxed-component title="Registers" color="skyblue" container_class="registers-container">
                 <register v-for="register in registers" :value="register.value" :index="register.index"></register>
             </boxed-component>
         </div>
     </div>
     <script>
-        const registerCount = 32;
-        const busWidth = 8;
-        const ram_size = 16;
-        const op_code_size = 16;
+        const REGISTER_COUNT = 32;
+        const BUS_WIDTH = 8;
+        const RAM_SIZE = 16;
+        const OPCODE_WIDTH = 16;
+        const CLOCK_INTERVAL = 500;
 
         let registers = [];
-        for (let registerIndex = 0; registerIndex < registerCount; registerIndex++) {
+        for (let registerIndex = 0; registerIndex < REGISTER_COUNT; registerIndex++) {
             registers.push({
                 index: registerIndex,
                 value: registerIndex
@@ -73,13 +84,14 @@
 
         const initial_data = {
             alu: {
-                bus_width: busWidth,
+                bus_width: BUS_WIDTH,
                 target_operand: 5 | 1,
                 source_operand: 255
             },
             registers: registers,
             bus_value: 2,
             ram_address: 0,
+            flash_address: 0,
             op_code: 0xba4
         };
 
@@ -95,10 +107,29 @@
         Vue.component("program-counter", {
             template: `
             <boxed-component title="P-Counter" color="lightblue">
-                <byte :value="value"></byte>
+                <byte :value="innerValue"></byte>
             </boxed-component>
             `,
-            props: ["value", "in", "out"]
+            props: ["value", "in", "out"],
+            created() {
+                this.innerValue = this.value || 0;
+            }
+        });
+
+        Vue.component("clock", {
+            template: `
+            <boxed-component title="Clock">
+                <span>{{value ? "HIGH": "LOW"}}</span>
+            </boxed-component>
+            `,
+            data() {
+                return { value: false };
+            },
+            created() {
+                setInterval(function () {
+                    this.value = !this.value;
+                }.bind(this), CLOCK_INTERVAL);
+            }
         });
 
         Vue.component("instruction", {
@@ -112,32 +143,58 @@
                 </boxed-component>
             </boxed-component>
             `,
-            props: ["op_code", "in" ],
-            watch: {
-                address: function (newAddress) {
-                    this.value = 0;
-                }
-            }
+            props: ["op_code", "in"]
         });
 
-        Vue.component("ram", {
+        Vue.component("memory", {
             template: `
-            <boxed-component title="RAM" color="lightpink">
+            <boxed-component :title="name" color="lightpink">
                 <boxed-component title="Address" color="lightsalmon">
                     <byte :value="address"></byte>
                 </boxed-component>
                 <boxed-component title="Value" color="indianred">
-                    <byte :value="value"></byte>
+                    <byte :value="innerValue"></byte>
                 </boxed-component>
             </boxed-component>
             `,
-            props: ["address", "value", "in", "out"],
+            props: ["name", "address", "value", "in", "out"],
             watch: {
                 address: function (newAddress) {
                     this.value = 0;
+                },
+                value: function (newValue) {
+                    this.innerValue = newValue;
                 }
+            },
+            created() {
+                this.innerValue = this.value || 0;
             }
         });
+
+        // Vue.component("ram", {
+        //     template: `
+        //     <boxed-component title="RAM" color="lightpink">
+        //         <boxed-component title="Address" color="lightsalmon">
+        //             <byte :value="address"></byte>
+        //         </boxed-component>
+        //         <boxed-component title="Value" color="indianred">
+        //             <byte :value="innerValue"></byte>
+        //         </boxed-component>
+        //     </boxed-component>
+        //     `,
+        //     props: ["address", "value", "in", "out"],
+        //     watch: {
+        //         address: function (newAddress) {
+        //             this.value = 0;
+        //         },
+        //         value: function (newValue) {
+        //             this.innerValue = newValue;
+        //         }
+        //     },
+        //     created() {
+        //         this.innerValue = this.value || 0;
+        //     }
+        // });
 
         Vue.component("register", {
             template: `
@@ -152,30 +209,36 @@
             template: `
                 <div class="wrapped">
                     <span class="title" :style="{ background: color }">{{title}}</span>
-                    <slot></slot>
+                    <div :class="container_class">
+                        <slot></slot>
+                    </div>
                 </div>
             `,
-            props: ["title", "color"]
+            props: ["title", "color", "container_class"]
         });
         Vue.component("byte", {
             template: `
                 <div class="byteContainer">
                     <div class="bitContainer">
-                        <div v-for="bit in busWidth()">{{bitValue(bit,value || 0)}}</div>
+                        <div v-for="bit in BUS_WIDTH()">{{bitValue(bit,value || 0)}}</div>
                     </div>
-                    - {{toHexString(value || 0)}}
+                    - {{toHexString(value || 0)}} - {{toDecimalString(value)}}
                 </div>`,
             props: ["value"],
             methods: {
                 toHexString: function (value) {
                     let str = value.toString(16).toUpperCase();;
-                    return "0".repeat((busWidth / 4) - str.length) + str;
+                    return "0".repeat((BUS_WIDTH / 4) - str.length) + str;
+                },
+                toDecimalString: function (value) {
+                    let str = value.toString();
+                    return "0".repeat(Math.pow(2, BUS_WIDTH).toString().length - str.length) + str;
                 },
                 bitValue: function (bit, value) {
-                    return Math.pow(2, busWidth - bit) & value ? 1 : 0;
+                    return Math.pow(2, BUS_WIDTH - bit) & value ? 1 : 0;
                 },
-                busWidth: function () {
-                    return busWidth;
+                BUS_WIDTH: function () {
+                    return BUS_WIDTH;
                 }
             }
         });
