@@ -37,7 +37,7 @@
             return null;
         }
         $(() => {
-            $.get("docs/ops.json", ops => {
+            $.get("data/ops.json", ops => {
                 let resultHtml = "";
                 ops.sort((op1, op2) => firstWord(op1) > firstWord(op2) ? 1 : -1);
                 ops.forEach(op => {

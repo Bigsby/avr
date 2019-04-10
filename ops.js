@@ -1,4 +1,4 @@
-const ops = require("./docs/ops.json");
+const ops = require("./data/ops.json");
 
 function firstWord(op) {
     if (op.opCode) {

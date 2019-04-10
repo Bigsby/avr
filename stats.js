@@ -1,5 +1,5 @@
-const ops = require("./docs/ops.json");
-const opTypes = require("./docs/opTypes.json");
+const ops = require("./data/ops.json");
+const opTypes = require("./data/opTypes.json");
 
 console.log(`Number of ops: ${ops.length}`);
 opTypes.forEach(opType => {

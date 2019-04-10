@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVR</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        div.byteContainer {
+            display: flex;
+            flex-direction: row;
+            font-family: monospace;
+        }
+
+        div.bitContainer {
+            display: flex;
+            flex-direction: row;
+        }
+
+        div.wrapped {
+            border: 1px solid black;
+            display: table;
+            padding: 2px;
+            margin: 2px;
+        }
+
+        div.components-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        div.wrapped span.title {
+            text-align: center;
+            font-weight: bold;
+            width: 100%;
+            display: inline-block;
+            border-bottom: 1px solid black;
+        }
+
+        .registers-container {
+            width: 512px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .clock-control-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .clock-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <h1>AVR Architecture</h1>
+        <div class="components-container">
+            <div>
+                <boxed-component title="Clock & Control" container_class="clock-control-container">
+                    <clock></clock>
+                    <program-counter></program-counter>
+                    <instruction :op_code="op_code"></instruction>
+                </boxed-component>
+            </div>
+            <div>
+                <boxed-component title="Memories">
+                    <flash :flash_address="flash_address" :config="config"></flash>
+                    <ram :ram_address="ram_address" :config="config"></ram>
+                    <memory name="EEPROM" :address="eeprom_addres" :width="1" size="16"></memory>
+                </boxed-component>
+            </div>
+            <div>
+                <bus :value="bus_value"></bus>
+                <alu :target_operand="alu.target_operand" :source_operand="alu.source_operand"></alu>
+            </div>
+
+            <boxed-component title="Registers" color="skyblue" container_class="registers-container">
+                <register v-for="register in registers" :value="register.value" :index="register.index"></register>
+            </boxed-component>
+        </div>
+    </div>
+    <script>
+        const REGISTER_COUNT = 32;
+        const BUS_WIDTH = 8;
+        const RAM_SIZE = 16;
+        const FLASH_SIZE = 255;
+        const OPCODE_WIDTH = 16;
+        const CLOCK_INTERVAL = 500;
+        const CLOCK_INCREMENT = 100;
+
+        const EVENTS = {
+            CLOCK_HIGH: "CLOCK_HIGH",
+            CLOCK_LOW: "CLOCK_LOW",
+            PROGRAM_COUNTER_CHANGED: "PROGRAM_COUNTER_CHANGED",
+            OPCODE_CHANGE: "OPCODE_CHANGE"
+        };
+        const CONTROL = {
+            INSTRUCTION_OUT: 1 << 0,
+            INSTRUCTION_IN: 1 << 1,
+            REGISTER_A_OUT: 1 << 2,
+            REGISGER_A_IN: 1 << 3,
+            REGISTER_B_OUT: 11 << 4,
+            ALU_OUT: 1 << 5,
+            RAM_OUT: 1 << 6,
+            RAM_IN: 1 << 7,
+        };
+
+        let registers = [];
+        for (let registerIndex = 0; registerIndex < REGISTER_COUNT; registerIndex++) {
+            registers.push({
+                index: registerIndex,
+                value: 0
+            });
+        }
+
+        let eventBus = new Vue({
+            data() {
+                return {
+                    status: 0,
+                    control: {
+                        isSet(bit) {
+                            return this.status & bit === bit;
+                        },
+                        set(bit) {
+                            this.status != bit;
+                        },
+                        clear(bit) {
+                            this.status ^= bit;
+                        }
+                    }
+                };
+            }
+        });
+
+        const initial_data = {
+            config: {
+                opcode_width: OPCODE_WIDTH,
+                bus_width: BUS_WIDTH,
+                flash_size: FLASH_SIZE,
+                ram_size: RAM_SIZE,
+                program: [
+                    [25, 12],
+                    [46, 128],
+                    [1, 38]
+                ]
+            },
+            alu: {
+                target_operand: 5 | 1,
+                source_operand: 255
+            },
+            registers: registers,
+            bus_value: 2,
+            ram_address: 0,
+            flash_address: 0,
+            eeprom_addres: 0,
+            op_code: 0xba4
+        };
+
+        Vue.component("bus", {
+            template: `
+                <boxed-component title="Bus" color="yellow">
+                    <byte :value="value"></byte>
+                </boxed-component>        
+            `,
+            data() {
+                return {
+                    eventBus: eventBus
+                }
+            },
+            props: ["value"],
+        });
+
+        Vue.component("program-counter", {
+            template: `
+            <boxed-component title="P-Counter" color="lightblue">
+                <byte :value="innerValue"></byte>
+            </boxed-component>
+            `,
+            data() {
+                return {
+                    eventBus: eventBus,
+                    innerValue: this.value || 0
+                }
+            },
+            props: ["value", "in", "out"],
+            created() {
+                //this.innerValue = this.value || 0;
+                this.eventBus.$on(EVENTS.CLOCK_HIGH, function () {
+                    this.innerValue++;
+                    this.eventBus.$emit(EVENTS.PROGRAM_COUNTER_CHANGED, this.innerValue);
+                }.bind(this));
+            }
+        });
+
+        Vue.component("clock", {
+            template: `
+            <boxed-component title="Clock" container_class="clock-container">
+                <div>
+                    <span>{{interval}}ms</span>
+                    <span>{{value ? "HIGH": "LOW"}}</span>
+                </div>
+                <div>
+                    <button @click="increment" title="Slower"><i class="fa fa-plus"></i></button>
+                    <button @click="decrement" title="Faster" :disabled="interval === 0"><i class="fa fa-minus"></i></button>
+                    <button v-if="is_running" @click="pause"><i class="fa fa-pause"></i></button>
+                    <button v-if="!is_running" @click="play"><i class="fa fa-play"></i></button>
+                    <button :disabled="is_running" @click="step"><i class="fa fa-step-forward"></i></button>
+                </div>
+            </boxed-component>
+            `,
+            data() {
+                return {
+                    value: false,
+                    eventBus: eventBus,
+                    interval: CLOCK_INTERVAL,
+                    is_running: false
+                };
+            },
+            methods: {
+                clearTimer() {
+                    if (this._timer) {
+                        clearInterval(this._timer);
+                    }
+                    this.is_running = false;
+                },
+                setTimer() {
+                    this.clearTimer();
+
+                    this._timer = this._timer = setInterval(function () {
+                        this.advance();
+                    }.bind(this), this.interval);
+                    this.is_running = true;
+                },
+                advance() {
+                    this.value = !this.value;
+                    this.eventBus.$emit(this.value ? EVENTS.CLOCK_HIGH : EVENTS.CLOCK_LOW);
+                },
+                increment() {
+                    this.interval += CLOCK_INCREMENT;
+                    this.setTimer();
+                },
+                decrement() {
+                    if (this.interval === 0) return;
+                    this.interval -= CLOCK_INCREMENT;
+                    this.setTimer();
+                },
+                pause() {
+                    this.clearTimer();
+                },
+                play() {
+                    this.setTimer();
+                },
+                step() {
+                    this.advance();
+                }
+            }
+        });
+
+        Vue.component("instruction", {
+            template: `
+            <boxed-component title="Instruction" color="lightpink">
+                <boxed-component title="Higher" color="lightgreen">
+                    <byte :value="higher"></byte>
+                </boxed-component>
+                <boxed-component title="Lower" color="lightred">
+                    <byte :value="lower"></byte>
+                </boxed-component>
+            </boxed-component>
+            `,
+            data() {
+                return {
+                    eventBus: eventBus,
+                    higher: this.op_code >> 8,
+                    lower: this.op_code & 0xff
+                };
+            },
+            created() {
+                this.eventBus.$on(EVENTS.OPCODE_CHANGE, values => {
+                    this.higher = values[0];
+                    this.lower = values[1];
+                });
+            },
+            props: ["op_code", "in"]
+        });
+
+        Vue.component("alu", {
+            template: `
+            <boxed-component title="ALU" color="lightgrey">
+                <boxed-component title="Target" color="lightgreen">
+                    <byte :value="target_operand"></byte>
+                </boxed-component>
+                <boxed-component title="Source" color="coral">
+                    <byte :value="source_operand"></byte>
+                </boxed-component>
+                <boxed-component title="Status" color="	greenyellow">
+                    <byte :value="source_operand"></byte>
+                </boxed-component>
+            </boxed-component>
+            `,
+            data() {
+                return {
+                    eventBus: eventBus
+                };
+            },
+            props: ["target_operand", "source_operand", "out"]
+        });
+
+        Vue.component("ram", {
+            template: `<memory name="RAM" :address="ram_address" :width="config.bus_width / 8" :size="config.ram_size"></memory>`,
+            props: ["config", "ram_address"],
+            data() {
+                return {
+                    eventBus: eventBus
+                };
+            }
+        });
+
+        Vue.component("flash", {
+            template: `
+                <memory name="Flash" 
+                    :change_event="change_event"
+                    :address="address" 
+                    :width="config.opcode_width / 8" 
+                    :initial_data="config.program" 
+                    :size="config.flash_size">
+                </memory>`,
+            props: ["config", "flash_address"],
+            data() {
+                return {
+                    eventBus: eventBus,
+                    address: this.flash_address,
+                    change_event: EVENTS.OPCODE_CHANGE
+                };
+            },
+            created() {
+                this.eventBus.$on(EVENTS.PROGRAM_COUNTER_CHANGED, instructionAddress => {
+                    this.address = instructionAddress;
+                });
+            }
+        });
+
+        Vue.component("memory", {
+            template: `
+            <boxed-component :title="name" color="lightpink">
+                <boxed-component title="Address" color="lightsalmon">
+                    <byte :value="address"></byte>
+                </boxed-component>
+                <template v-if="width===1">
+                    <boxed-component title="Value" color="indianred">
+                        <byte :value="values[0]"></byte>
+                    </boxed-component>
+                </template>
+                <template v-else>
+                    <boxed-component v-for="index in width" :title="'Value' + (index - 1)" color="indianred">
+                        <byte :value="values[index - 1]"></byte>
+                    </boxed-component>
+                </template>
+            </boxed-component>
+            `,
+            props: ["name", "address", "width", "size", "initial_data", "in", "out", "change_event"],
+            watch: {
+                address: function (newAddress) {
+                    this.setValues();
+                }
+            },
+
+            methods: {
+                initalizeData() {
+                    console.log("initializing data for" + this.name);
+                    if (this.initial_data) {
+                        return this.initial_data;
+                    } else {
+                        const result = new Array(this.width);
+                        for (let sizeIndex = 0; sizeIndex < this.size; sizeIndex++) {
+                            result[sizeIndex] = new Array(this.width);
+                            for (let widthIndex = 0; widthIndex < this.width; widthIndex++) {
+                                result[sizeIndex][widthIndex] = 0;
+                            }
+                        }
+                        return result;
+                    }
+                },
+                setValues() {
+                    console.log("setting values for" + this.name);
+                    for (let widthIndex = 0; widthIndex < this.width; widthIndex++) {
+                        this.values[widthIndex] = this.memory[this.address] && this.memory[this.address][widthIndex] || 0;
+                    }
+                    if (this.change_event) {
+                        this.eventBus.$emit(this.change_event, this.values);
+                    }
+                }
+            },
+            data() {
+                return {
+                    eventBus: eventBus,
+                    memory: this.initalizeData(),
+                    values: new Array(this.width)
+                };
+            },
+            created() {
+                console.log("creating " + this.name);
+                this.setValues();
+                console.log("created " + this.name);
+            }
+        });
+
+        Vue.component("register", {
+            template: `
+            <boxed-component :title="'R' + index" color="lightblue">
+                <byte :value="value"></byte>
+            </boxed-component>
+            `,
+            data() {
+                return {
+                    eventBus: eventBus
+                };
+            },
+            props: ["value", "index", "in", "out"]
+        });
+
+        Vue.component("boxed-component", {
+            template: `
+                <div class="wrapped">
+                    <span class="title" :style="{ background: color }">{{title}}</span>
+                    <div :class="container_class">
+                        <slot></slot>
+                    </div>
+                </div>
+            `,
+            props: ["title", "color", "container_class"]
+        });
+
+        Vue.component("byte", {
+            template: `
+                <div class="byteContainer">
+                    <div class="bitContainer">
+                        <div v-for="bit in width">{{bitValue(bit,value || 0)}}</div>
+                    </div>
+                    :{{toHexString(value || 0)}}:{{toDecimalString(value)}}
+                </div>`,
+            props: ["value"],
+            data() {
+                return {
+                    eventBus: eventBus,
+                    width: BUS_WIDTH
+                };
+            },
+            methods: {
+                toHexString: function (value) {
+                    let str = (value || 0).toString(16).toUpperCase();;
+                    const numberzeros = (this.width / 4) - str.length;
+                    if (numberzeros < 0) {
+                        console.log(`hex ${value} ${this.width} ${str}`);
+                    }
+
+                    return "0".repeat((this.width / 4) - str.length) + str;
+                },
+                toDecimalString: function (value) {
+                    let str = (value || 0).toString();
+                    return "0".repeat(Math.pow(2, this.width).toString().length - str.length) + str;
+                },
+                bitValue: function (bit, value) {
+                    return Math.pow(2, this.width - bit) & value ? 1 : 0;
+                }
+            }
+        });
+
+        let app = new Vue({
+            el: "div#app",
+            data: initial_data
+        });
+    </script>
+</body>
+
+</html>
