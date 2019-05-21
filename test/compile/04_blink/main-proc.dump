@@ -1,0 +1,49 @@
+0ec0 rjmp 14                 1
+15c0 rjmp 21
+14c0 rjmp 20
+13c0 rjmp 19
+12c0 rjmp 18
+11c0 rjmp 17
+10c0 rjmp 16
+0fc0 rjmp 15
+0ec0 rjmp 14
+0dc0 rjmp 13
+0cc0 rjmp 12
+0bc0 rjmp 11
+0ac0 rjmp 10
+09c0 rjmp 9
+08c0 rjmp 8
+1124 eor r1, r1            2
+1fbe out $0x3F, r1         3
+cfe5 ldi r31, 0xAF         4
+d2e0 ldi r30, 0x02         5
+debf out $0x3E, r31        6
+cdbf out $0x3D, r30        7
+02d0 rcall $0x002          8
+18c0 rjmp 24
+e8cf rjmp -24
+8fef ser r8                9
+87b9 out $0x07, r24       10
+409a sbi $0x08, 0         11 32
+2fe3 ldi r18, $0x3F ; 63  12
+8de0 ldi r24, $0x0D ; 14  13
+93e0 ldi r25, $0x03       14
+2150 subi r18, $0x01      15
+8040 sbci r24, 0          16
+9040 sbci r25, 0          17
+e1f7 brbc $0x1, -4 ; Z    18, repeast from 15 until r18 == 0
+00c0 rjmp 0               19
+0000 nop                  20
+4098 cbi $0x8, 0          21
+2fe3 ldi r18, $0x3F ; 63  22
+8de0 ldi r24, $0x0D ; 14  23
+93e0 ldi r25, $0x03       24
+2150 subi r18, $0x01      25
+8040 sbci r24, 0          26
+9040 sbci r25, 0          27
+e1f7 brbc $0x1, -4 ; Z    28  repeat from 25 until r18 == 0
+00c0 rjmp 0               29
+0000 nop                  30
+ebcf rjmp -21             31
+f894 cli
+ffcf rjmp -1
