@@ -14,11 +14,11 @@
 09c0 rjmp 9
 08c0 rjmp 8
 1124 eor r1, r1            2
-1fbe out $0x3F, r1         3
-cfe5 ldi r31, 0xAF         4
+1fbe out $0x3F, r1 ; 63    3
+cfe5 ldi r31, 0xAF ; 175   4
 d2e0 ldi r30, 0x02         5
-debf out $0x3E, r31        6
-cdbf out $0x3D, r30        7
+debf out $0x3E, r31 ; 62   6
+cdbf out $0x3D, r30 ; 61   7
 02d0 rcall $0x002          8
 18c0 rjmp 24
 e8cf rjmp -24
